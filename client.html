@@ -430,6 +430,7 @@
       border: 1px solid var(--border);
     }
     .btn-download:hover { border-color: var(--text-soft); color: var(--text); }
+    .btn-download:disabled { opacity: 0.6; cursor: wait; }
 
     /* ── LIGHTBOX SAVE BUTTON ── */
     .lightbox-save {
@@ -453,6 +454,7 @@
       transition: background 0.2s;
     }
     .lightbox-save:hover { background: #d4b47a; }
+    .lightbox-save:disabled { opacity: 0.6; cursor: wait; }
     .lightbox-save svg {
       width: 13px; height: 13px;
       stroke: currentColor; fill: none;
@@ -641,10 +643,10 @@
     <video id="lightboxVideo" controls playsinline></video>
     <iframe id="lightboxEmbed" allowfullscreen allow="autoplay; encrypted-media"></iframe>
     <p class="lightbox-caption" id="lightboxCaption"></p>
-    <a id="lightboxSave" class="lightbox-save" target="_blank" rel="noopener">
+    <button id="lightboxSave" class="lightbox-save" onclick="downloadVideo(this, this.dataset.src, this.dataset.title)">
       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       Save / Download Video
-    </a>
+    </button>
   </div>
 </div>
 
@@ -776,10 +778,10 @@
               <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" stroke="none" fill="currentColor"/></svg>
               Play
             </button>
-            <a class="card-btn btn-download" href="${src}" download="${title}" target="_blank" rel="noopener">
+            <button class="card-btn btn-download" onclick="downloadVideo(this, '${src.replace(/'/g,"\\'")}', '${title.replace(/'/g,"\\'")}')">
               <svg viewBox="0 0 24 24"><path d="M12 5v10M8 11l4 4 4-4M5 18h14"/></svg>
-              Download
-            </a>
+              Save to Phone
+            </button>
           </div>
         </div>
       `;
@@ -845,10 +847,10 @@
 
     if (cap) cap.textContent = title || '';
 
-    // Set save button — opens video in new tab so user can hold-press to save on iOS
+    // Set save button data attrs for downloadVideo()
     if (save) {
-      save.href = src;
-      save.download = title || 'video';
+      save.dataset.src   = src;
+      save.dataset.title = title || 'video';
       // Hide save button for Google Drive embeds (can't download directly)
       save.style.display = isEmbedUrl(src) ? 'none' : 'flex';
     }
@@ -889,6 +891,45 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeLightbox();
   });
+
+  // ── Download / Save helper ───────────────────────────
+  // Uses Web Share API on iOS (gives native "Save Video" sheet)
+  // Falls back to blob-URL download on desktop
+  async function downloadVideo(btn, url, filename) {
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round"><path d="M12 5v10M8 11l4 4 4-4M5 18h14"/></svg> Preparing…';
+
+    try {
+      const response = await fetch(url);
+      const blob     = await response.blob();
+      const safeName = (filename || 'video').replace(/[^a-z0-9\s\-_]/gi, '_');
+      const file     = new File([blob], safeName + '.mp4', { type: blob.type || 'video/mp4' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        // iOS / Android: opens native share sheet — tap "Save Video" or "Save to Files"
+        await navigator.share({ files: [file], title: filename || 'Your Wedding Film' });
+      } else {
+        // Desktop: trigger download via blob URL
+        const blobUrl = URL.createObjectURL(blob);
+        const a       = document.createElement('a');
+        a.href        = blobUrl;
+        a.download    = file.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        // Final fallback: open in new tab
+        window.open(url, '_blank');
+      }
+    } finally {
+      btn.disabled  = false;
+      btn.innerHTML = originalHTML;
+    }
+  }
 
   // ── URL helpers ───────────────────────────────────────
 
