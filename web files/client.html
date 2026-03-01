@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Wedding Short Films</title>
+  <meta property="og:title" content="Your Wedding Short Films — Eli Pixler Studios" />
+  <meta property="og:description" content="Your private collection of wedding short films, crafted just for you." />
+  <meta property="og:image" content="logo.png" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Your Wedding Short Films — Eli Pixler Studios" />
+  <meta name="twitter:description" content="Your private collection of wedding short films, crafted just for you." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0c0a08;
+      --surface:     #161210;
+      --surface-2:   #1f1c18;
+      --border:      #2a2520;
+      --border-glow: rgba(196, 162, 100, 0.25);
+      --text:        #f2e8da;
+      --text-mid:    #b0a090;
+      --text-soft:   #6b6055;
+      --gold:        #c4a264;
+      --gold-dim:    #8a6f40;
+      --gold-glow:   rgba(196, 162, 100, 0.12);
+      --gold-glow2:  rgba(196, 162, 100, 0.06);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── GRAIN TEXTURE ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      pointer-events: none;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    }
+
+    /* ── NAV ── */
+    .site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      padding: 1.4rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(12, 10, 8, 0);
+      transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
+      border-bottom: 1px solid transparent;
+    }
+    .site-nav.scrolled {
+      background: rgba(12, 10, 8, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom-color: var(--border);
+    }
+
+    .nav-brand { line-height: 1; }
+    .nav-logo {
+      height: 38px;
+      width: auto;
+      display: block;
+      filter: invert(1) sepia(0.2) saturate(1.5) hue-rotate(5deg);
+      opacity: 0.88;
+      transition: opacity 0.3s ease;
+    }
+    .nav-logo:hover { opacity: 1; }
+    .nav-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    /* ── HERO COVER PHOTO ── */
+    .hero-has-cover {
+      background-size: cover !important;
+      background-position: center center !important;
+      background-repeat: no-repeat !important;
+    }
+    .hero-has-cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(12,10,8,0.55) 0%,
+        rgba(12,10,8,0.35) 40%,
+        rgba(12,10,8,0.7) 100%
+      );
+      z-index: 1;
+    }
+    .hero-has-cover > * { position: relative; z-index: 2; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 9rem 2rem 6rem;
+      position: relative;
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(196,162,100,0.07) 0%, transparent 70%);
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 1px; height: 80px;
+      background: linear-gradient(to bottom, var(--gold-dim), transparent);
+      opacity: 0.5;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.6rem;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 1s cubic-bezier(.25,.46,.45,.94) forwards 0.3s;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 7vw, 5.5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      opacity: 0;
+      animation: fadeUp 1s cubic-bezier(.25,.46,.45,.94) forwards 0.45s;
+    }
+
+    .hero-bride {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.25rem, 3vw, 1.8rem);
+      font-style: italic;
+      font-weight: 300;
+      color: var(--gold);
+      margin-top: 1rem;
+      letter-spacing: 0.03em;
+      opacity: 0;
+      animation: fadeUp 1s cubic-bezier(.25,.46,.45,.94) forwards 0.6s;
+    }
+
+    .hero-divider {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin: 2.25rem auto;
+      opacity: 0;
+      animation: fadeUp 1s cubic-bezier(.25,.46,.45,.94) forwards 0.72s;
+    }
+    .hero-divider-line {
+      width: 50px; height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold-dim));
+    }
+    .hero-divider-line:last-child {
+      background: linear-gradient(to left, transparent, var(--gold-dim));
+    }
+    .hero-divider-diamond {
+      width: 5px; height: 5px;
+      background: var(--gold-dim);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
+
+    .hero-sub {
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      opacity: 0;
+      animation: fadeUp 1s cubic-bezier(.25,.46,.45,.94) forwards 0.82s;
+    }
+
+    .scroll-cue {
+      position: absolute;
+      bottom: 2.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 1.2s;
+    }
+    .scroll-cue-text {
+      font-size: 0.55rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+    .scroll-cue-line {
+      width: 1px; height: 36px;
+      background: linear-gradient(to bottom, var(--gold-dim), transparent);
+      animation: scrollPulse 2.4s ease-in-out infinite;
+    }
+
+    /* ── NOT FOUND ── */
+    .not-found {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    .not-found h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-style: italic;
+      font-weight: 300;
+      color: var(--text-soft);
+      margin-bottom: 1rem;
+    }
+    .not-found p {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      opacity: 0.5;
+    }
+
+    /* ── GALLERY ── */
+    .gallery-section {
+      padding: 6rem 2.5rem 8rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .gallery-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2.75rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gallery-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .gallery-count {
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+    }
+
+    /* Vertical reels grid */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.25rem;
+    }
+
+    /* ── VIDEO CARD ── */
+    .video-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(20px);
+      transition:
+        opacity 0.6s ease,
+        transform 0.6s ease,
+        box-shadow 0.35s ease,
+        border-color 0.35s ease;
+    }
+    .video-card.visible { opacity: 1; transform: translateY(0); }
+    .video-card:hover {
+      border-color: var(--border-glow);
+      box-shadow: 0 0 0 1px var(--border-glow), 0 16px 48px rgba(0,0,0,0.5);
+    }
+
+    .video-thumb {
+      position: relative;
+      aspect-ratio: 9 / 16;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+
+    .video-thumb video,
+    .video-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.55s ease;
+    }
+    .video-card:hover .video-thumb video,
+    .video-card:hover .video-thumb img { transform: scale(1.05); }
+
+    /* Play overlay */
+    .play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to top, rgba(12,10,8,0.5) 0%, transparent 50%);
+      transition: background 0.35s ease;
+      pointer-events: none;
+    }
+    .video-card:hover .play-overlay {
+      background: linear-gradient(to top, rgba(12,10,8,0.65) 0%, rgba(12,10,8,0.1) 60%);
+    }
+
+    .play-ring {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      border: 1px solid rgba(196,162,100,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(12,10,8,0.45);
+      backdrop-filter: blur(4px);
+      transform: scale(0.8);
+      opacity: 0;
+      transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), opacity 0.3s ease;
+    }
+    .video-card:hover .play-ring {
+      transform: scale(1);
+      opacity: 1;
+    }
+    .play-ring svg {
+      width: 14px; height: 14px;
+      fill: var(--gold);
+      margin-left: 2px;
+    }
+
+    /* Bottom card info */
+    .card-body {
+      padding: 1.1rem 1.25rem 1.35rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      transition: background 0.3s ease;
+    }
+    .video-card:hover .card-body { background: var(--surface-2); }
+
+    .card-date {
+      font-size: 0.58rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      margin-bottom: 0.28rem;
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      font-weight: 300;
+      color: var(--text);
+      margin-bottom: 1rem;
+      line-height: 1.3;
+      letter-spacing: 0.01em;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .card-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all 0.22s ease;
+      width: 100%;
+    }
+    .card-btn svg {
+      width: 12px; height: 12px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .btn-play {
+      background: var(--gold);
+      color: var(--bg);
+    }
+    .btn-play:hover { background: #d4b47a; }
+
+    .btn-download {
+      background: transparent;
+      color: var(--text-mid);
+      border: 1px solid var(--border);
+    }
+    .btn-download:hover { border-color: var(--text-soft); color: var(--text); }
+
+    /* ── LIGHTBOX SAVE BUTTON ── */
+    .lightbox-save {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: var(--gold);
+      color: var(--bg);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+    .lightbox-save:hover { background: #d4b47a; }
+    .lightbox-save svg {
+      width: 13px; height: 13px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 7rem 2rem;
+      border: 1px solid var(--border);
+    }
+    .empty-state p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-style: italic;
+      font-weight: 300;
+      color: var(--text-soft);
+    }
+    .empty-state span {
+      display: block;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      opacity: 0.4;
+      margin-top: 0.75rem;
+    }
+
+    /* ── RIPPLE / BUBBLE ── */
+    .ripple-bubble {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 490;
+      transform: scale(0);
+      opacity: 1;
+      background: radial-gradient(circle at center,
+        rgba(196,162,100,0.22) 0%,
+        rgba(196,162,100,0.08) 40%,
+        transparent 70%
+      );
+      animation: bubbleExpand 0.75s cubic-bezier(.22,.68,0,1.2) forwards;
+    }
+
+    @keyframes bubbleExpand {
+      0%   { transform: scale(0); opacity: 0.9; }
+      60%  { opacity: 0.5; }
+      100% { transform: scale(1); opacity: 0; }
+    }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(6,4,3,0);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      pointer-events: none;
+      transition: background 0.4s ease;
+    }
+    .lightbox.open {
+      background: rgba(6,4,3,0.97);
+      pointer-events: auto;
+    }
+
+    .lightbox-inner {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      opacity: 0;
+      transform: scale(0.93) translateY(12px);
+      transition: opacity 0.35s ease 0.1s, transform 0.35s cubic-bezier(.34,1.2,.64,1) 0.1s;
+    }
+    .lightbox.open .lightbox-inner {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -3rem;
+      right: 0;
+      background: none;
+      border: none;
+      color: var(--text-soft);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.62rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      transition: color 0.2s;
+    }
+    .lightbox-close:hover { color: var(--text); }
+    .lightbox-close svg {
+      width: 14px; height: 14px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.5; stroke-linecap: round;
+    }
+
+    .lightbox video {
+      width: 100%;
+      display: block;
+      border: 1px solid var(--border);
+    }
+
+    .lightbox iframe {
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      border: 1px solid var(--border);
+      display: none;
+      background: #000;
+    }
+
+    .lightbox-caption {
+      text-align: center;
+      margin-top: 1.1rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-style: italic;
+      font-weight: 300;
+      color: var(--text-soft);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+    footer p {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      opacity: 0.5;
+    }
+
+    /* ── KEYFRAMES ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.2; }
+      50%       { opacity: 0.9; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 680px) {
+      .video-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+      .site-nav { padding: 1.1rem 1.5rem; }
+      .gallery-section { padding: 4.5rem 1.25rem 6rem; }
+      .card-body { padding: 0.875rem 1rem 1.1rem; }
+    }
+    @media (max-width: 380px) {
+      .video-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav" id="siteNav">
+  <div class="nav-brand"><img src="logo.png" alt="Eli Pixler Studios" class="nav-logo" /></div>
+  <span class="nav-tag">Private Collection</span>
+</nav>
+
+<div id="pageContent"></div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightboxClose">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Close
+    </button>
+    <video id="lightboxVideo" controls playsinline></video>
+    <iframe id="lightboxEmbed" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    <p class="lightbox-caption" id="lightboxCaption"></p>
+    <a id="lightboxSave" class="lightbox-save" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Save / Download Video
+    </a>
+  </div>
+</div>
+
+<script>
+  // ── Scroll nav ──────────────────────────────────────
+  window.addEventListener('scroll', () => {
+    document.getElementById('siteNav').classList.toggle('scrolled', scrollY > 30);
+  }, { passive: true });
+
+  // ── Supabase ─────────────────────────────────────────
+  const SUPABASE_URL = 'https://agrymwvcdnheccromupd.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_otI76Wja5LMZdVf6ixO-rA_xpFylkVp';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Load client ─────────────────────────────────────
+  const params  = new URLSearchParams(location.search);
+  const slug    = params.get('bride');
+  const content = document.getElementById('pageContent');
+
+  async function loadPortal() {
+    if (!slug) {
+      content.innerHTML = `<div class="not-found"><h1>Page not found</h1><p>This link may have expired or been removed</p></div>`;
+      return;
+    }
+
+    const { data: client, error } = await sb.from('clients').select('*').eq('slug', slug).single();
+
+    if (error || !client) {
+      content.innerHTML = `<div class="not-found"><h1>Page not found</h1><p>This link may have expired or been removed</p></div>`;
+      return;
+    }
+
+    const displayName = client.partner
+      ? `${client.name} & ${client.partner}`
+      : client.name;
+
+    document.title = `${displayName} — Eli Pixler Studios`;
+
+    const coverPhoto = client.cover_photo || client.coverPhoto || '';
+    const coverStyle = coverPhoto ? `style="background-image: url('${coverPhoto}')"` : '';
+    const coverClass = coverPhoto ? 'hero-has-cover' : '';
+
+    content.innerHTML = `
+      <section class="hero ${coverClass}" ${coverStyle}>
+        <p class="hero-eyebrow">Eli Pixler Studios</p>
+        <h1 class="hero-title">Your Wedding Short Films</h1>
+        <p class="hero-bride">${displayName}</p>
+        <div class="hero-divider">
+          <div class="hero-divider-line"></div>
+          <div class="hero-divider-diamond"></div>
+          <div class="hero-divider-line"></div>
+        </div>
+        <p class="hero-sub">A private collection, crafted for you</p>
+        <div class="scroll-cue">
+          <span class="scroll-cue-text">View</span>
+          <div class="scroll-cue-line"></div>
+        </div>
+      </section>
+
+      <section class="gallery-section">
+        <div class="gallery-meta">
+          <span class="gallery-label">Short Films &amp; Reels</span>
+          <span class="gallery-count" id="galleryCount"></span>
+        </div>
+        <div class="video-grid" id="videoGrid"></div>
+      </section>
+
+      <footer>
+        <p>Captured with love &nbsp;&middot;&nbsp; Eli Pixler Studios</p>
+      </footer>
+    `;
+
+    buildGallery(client);
+  }
+
+  loadPortal();
+
+  // ── Build gallery ────────────────────────────────────
+  function buildGallery(client) {
+    const grid   = document.getElementById('videoGrid');
+    const count  = document.getElementById('galleryCount');
+    const videos = client.videos || [];
+
+    if (!videos.length) {
+      if (count) count.textContent = '';
+      grid.innerHTML = `
+        <div class="empty-state">
+          <p>Your films will appear here soon</p>
+          <span>Check back shortly</span>
+        </div>`;
+      return;
+    }
+
+    if (count) count.textContent = `${videos.length} film${videos.length !== 1 ? 's' : ''}`;
+
+    videos.forEach((video, i) => {
+      const src     = normalizeUrl(video.src || '');
+      const isVid   = isVideoUrl(src, video.type);
+      const title   = video.title || `Film ${i + 1}`;
+
+      const card = document.createElement('div');
+      card.className = 'video-card';
+      card.style.transitionDelay = `${i * 0.07}s`;
+
+      // For Google Drive use a thumbnail image in the card (can't stream natively)
+      // For direct MP4/Dropbox use a video element with hover-preview
+      const driveThumbnail = isEmbedUrl(src) ? getDriveThumbnail(video.src || '') : null;
+      const mediaEl = driveThumbnail
+        ? `<img src="${driveThumbnail}" alt="${title}" loading="lazy" />`
+        : isVid
+          ? `<video src="${src}" muted loop playsinline preload="auto"></video>`
+          : `<img src="${src}" alt="${title}" loading="lazy" />`;
+
+      card.innerHTML = `
+        <div class="video-thumb">
+          ${mediaEl}
+          ${isVid ? `
+            <div class="play-overlay">
+              <div class="play-ring">
+                <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+              </div>
+            </div>` : ''}
+        </div>
+        <div class="card-body">
+          ${client.date ? `<p class="card-date">${client.date}</p>` : ''}
+          <p class="card-title">${title}</p>
+          <div class="card-actions">
+            <button class="card-btn btn-play" data-src="${src}" data-title="${title}">
+              <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" stroke="none" fill="currentColor"/></svg>
+              Play
+            </button>
+            <a class="card-btn btn-download" href="${src}" download="${title}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24"><path d="M12 5v10M8 11l4 4 4-4M5 18h14"/></svg>
+              Download
+            </a>
+          </div>
+        </div>
+      `;
+
+      // Play button → bubble + lightbox (no delay so Safari honours the user gesture)
+      card.querySelector('.btn-play').addEventListener('click', e => {
+        triggerBubble(e.clientX, e.clientY);
+        openLightbox(src, title);
+      });
+
+      // Thumb click → bubble + lightbox (all video types)
+      if (isVid) {
+        const thumb = card.querySelector('.video-thumb');
+        thumb.addEventListener('click', e => {
+          if (e.target.closest('.btn-play')) return;
+          triggerBubble(e.clientX, e.clientY);
+          openLightbox(src, title);
+        });
+
+        // Hover-preview only works for direct video elements (not Drive iframes)
+        if (!isEmbedUrl(src)) {
+          const v = card.querySelector('video');
+          if (v) {
+            v.addEventListener('loadedmetadata', () => { v.currentTime = 0.01; });
+            thumb.addEventListener('mouseenter', () => v.play().catch(() => {}));
+            thumb.addEventListener('mouseleave', () => { v.pause(); v.currentTime = 0.01; });
+          }
+        }
+      }
+
+      grid.appendChild(card);
+    });
+
+    // Scroll reveal
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => e.isIntersecting && e.target.classList.add('visible'));
+    }, { threshold: 0.08 });
+    grid.querySelectorAll('.video-card').forEach(c => obs.observe(c));
+  }
+
+  // ── Bubble animation ─────────────────────────────────
+  function triggerBubble(x, y) {
+    const el   = document.createElement('div');
+    el.className = 'ripple-bubble';
+    const size = Math.max(window.innerWidth, window.innerHeight) * 1.6;
+    Object.assign(el.style, {
+      width:  `${size}px`,
+      height: `${size}px`,
+      left:   `${x - size / 2}px`,
+      top:    `${y - size / 2}px`,
+    });
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+
+  // ── Lightbox ──────────────────────────────────────────
+  function openLightbox(src, title) {
+    const lb    = document.getElementById('lightbox');
+    const v     = document.getElementById('lightboxVideo');
+    const embed = document.getElementById('lightboxEmbed');
+    const cap   = document.getElementById('lightboxCaption');
+    const save  = document.getElementById('lightboxSave');
+
+    if (cap) cap.textContent = title || '';
+
+    // Set save button — opens video in new tab so user can hold-press to save on iOS
+    if (save) {
+      save.href = src;
+      save.download = title || 'video';
+      // Hide save button for Google Drive embeds (can't download directly)
+      save.style.display = isEmbedUrl(src) ? 'none' : 'flex';
+    }
+
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    if (isEmbedUrl(src)) {
+      // Google Drive — use iframe player
+      v.style.display     = 'none';
+      embed.style.display = 'block';
+      embed.src           = src;
+    } else {
+      // Direct MP4 / Dropbox — use video element
+      embed.style.display = 'none';
+      v.style.display     = 'block';
+      v.src = src;
+      const p = v.play();
+      if (p !== undefined) p.catch(() => {});
+    }
+  }
+
+  function closeLightbox() {
+    const lb    = document.getElementById('lightbox');
+    const v     = document.getElementById('lightboxVideo');
+    const embed = document.getElementById('lightboxEmbed');
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+    v.pause();
+    setTimeout(() => { v.src = ''; embed.src = ''; }, 400);
+  }
+
+
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  document.getElementById('lightbox').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeLightbox();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  // ── URL helpers ───────────────────────────────────────
+
+  // Extract Google Drive file ID from any Drive share URL
+  function getDriveId(url) {
+    const m = url.match(/\/file\/d\/([^/?#]+)/) || url.match(/[?&]id=([^&]+)/);
+    return m ? m[1] : null;
+  }
+
+  // Returns true if the URL should be embedded via iframe (Google Drive)
+  function isEmbedUrl(url) {
+    return (url || '').includes('drive.google.com');
+  }
+
+  function normalizeUrl(url) {
+    if (!url) return '';
+
+    // Dropbox: swap to direct-content domain for native <video> playback
+    if (url.includes('dropbox.com')) {
+      return url
+        .replace('www.dropbox.com', 'dl.dropboxusercontent.com')
+        .replace('?dl=0', '')
+        .replace('?dl=1', '')
+        .split('?')[0];
+    }
+
+    // Google Drive: convert to the /preview embed URL (works in <iframe>)
+    // Handles: /file/d/ID/view, /file/d/ID/edit, open?id=ID, uc?id=ID
+    if (url.includes('drive.google.com')) {
+      const id = getDriveId(url);
+      if (id) return `https://drive.google.com/file/d/${id}/preview`;
+    }
+
+    return url;
+  }
+
+  function isVideoUrl(url, typeHint) {
+    if (typeHint && typeHint.startsWith('video')) return true;
+    const lower = (url || '').toLowerCase().split('?')[0];
+    return ['.mp4', '.mov', '.webm', '.m4v'].some(e => lower.endsWith(e))
+      || lower.includes('dropboxusercontent.com')
+      || lower.includes('drive.google.com');
+  }
+
+  // Google Drive thumbnail for card previews (public files only)
+  function getDriveThumbnail(url) {
+    const id = getDriveId(url);
+    return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w400` : null;
+  }
+</script>
+</body>
+</html>

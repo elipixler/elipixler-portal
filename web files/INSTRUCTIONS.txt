@@ -1,0 +1,48 @@
+# Eli Pixler Studios — Client Portal
+## How to use
+
+### FILES IN THIS FOLDER
+- admin.html  → YOUR page (password protected, never share this link)
+- client.html → Your brides' page (they access via a unique link)
+
+---
+
+### STEP 1 — Host on Netlify (free, 5 min)
+1. Go to netlify.com and sign up for a free account
+2. Click "Add new site" → "Deploy manually"
+3. Drag and drop this ENTIRE FOLDER onto the page
+4. Netlify gives you a URL like: https://yoursite.netlify.app
+5. You can change the name to something like: https://elipixler.netlify.app
+
+---
+
+### STEP 2 — Log into your admin
+1. Go to: https://yoursite.netlify.app/admin.html
+2. Password is: elipixler2025
+   (To change it, open admin.html and find: const ADMIN_PASSWORD = 'elipixler2025')
+
+---
+
+### STEP 3 — Create a client portal
+1. In the admin, type the bride's name, wedding date, and a slug
+   - Slug = the URL nickname, e.g. "sarah-johnson" → yoursite.netlify.app/client.html?bride=sarah-johnson
+2. Hit "Create Portal"
+3. Click "Copy Link" to get her unique URL
+4. Text or email that link to your bride!
+
+---
+
+### STEP 4 — Add videos to a portal
+Currently videos are added via the + button on the client page itself.
+A future version can add video upload directly from the admin panel.
+
+---
+
+### IMPORTANT NOTE
+Videos uploaded via the browser are session-only (they disappear on refresh).
+For permanent video delivery, the best free option is:
+- Upload videos to Google Drive or Dropbox
+- Make them "Anyone with link can view"
+- Paste the direct video URL into the portal
+
+We can build that into the admin panel as a next step!
