@@ -13,25 +13,34 @@
   <meta name="twitter:description" content="Your private collection of wedding short films, crafted just for you." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'LaLuxes';
+      src: url('LaLuxes-regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #0c0a08;
-      --surface:     #161210;
-      --surface-2:   #1f1c18;
-      --border:      #2a2520;
-      --border-glow: rgba(196, 162, 100, 0.25);
-      --text:        #f2e8da;
-      --text-mid:    #b0a090;
-      --text-soft:   #6b6055;
-      --gold:        #c4a264;
-      --gold-dim:    #8a6f40;
-      --gold-glow:   rgba(196, 162, 100, 0.12);
-      --gold-glow2:  rgba(196, 162, 100, 0.06);
+      --bg:          #F9F7F5;
+      --surface:     #ffffff;
+      --surface-2:   #F2EDE6;
+      --border:      #E2DAD0;
+      --border-glow: rgba(190, 180, 167, 0.6);
+      --text:        #000000;
+      --text-mid:    #71706F;
+      --text-soft:   #BEB4A7;
+      --gold:        #71706F;
+      --gold-dim:    #BEB4A7;
+      --gold-glow:   rgba(190, 180, 167, 0.18);
+      --gold-glow2:  rgba(190, 180, 167, 0.08);
     }
 
     html { scroll-behavior: smooth; }
@@ -54,7 +63,8 @@
       inset: 0;
       z-index: 9998;
       pointer-events: none;
-      opacity: 0.025;
+      opacity: 0.018;
+      mix-blend-mode: multiply;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
     }
 
@@ -72,7 +82,7 @@
       border-bottom: 1px solid transparent;
     }
     .site-nav.scrolled {
-      background: rgba(12, 10, 8, 0.88);
+      background: rgba(249, 247, 245, 0.92);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       border-bottom-color: var(--border);
@@ -83,13 +93,14 @@
       height: 38px;
       width: auto;
       display: block;
-      filter: invert(1) sepia(0.2) saturate(1.5) hue-rotate(5deg);
-      opacity: 0.88;
+      filter: none;
+      opacity: 0.85;
       transition: opacity 0.3s ease;
     }
     .nav-logo:hover { opacity: 1; }
     .nav-tag {
-      font-size: 0.6rem;
+      font-family: 'LaLuxes', 'Inter', sans-serif;
+      font-size: 0.65rem;
       letter-spacing: 0.28em;
       text-transform: uppercase;
       color: var(--text-soft);
@@ -125,7 +136,7 @@
       text-align: center;
       padding: 9rem 2rem 6rem;
       position: relative;
-      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(196,162,100,0.07) 0%, transparent 70%);
+      background: linear-gradient(180deg, #F2EDE6 0%, #F9F7F5 60%);
     }
 
     .hero::after {
@@ -133,37 +144,39 @@
       position: absolute;
       bottom: 0; left: 50%; transform: translateX(-50%);
       width: 1px; height: 80px;
-      background: linear-gradient(to bottom, var(--gold-dim), transparent);
-      opacity: 0.5;
+      background: linear-gradient(to bottom, var(--border), transparent);
+      opacity: 0.8;
     }
 
     .hero-eyebrow {
-      font-size: 0.6rem;
-      letter-spacing: 0.38em;
+      font-family: 'LaLuxes', 'Inter', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.42em;
       text-transform: uppercase;
-      color: var(--gold);
+      color: var(--text-soft);
       margin-bottom: 2rem;
       opacity: 0;
       animation: fadeUp 1s cubic-bezier(.25,.46,.45,.94) forwards 0.3s;
     }
 
     .hero-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(3rem, 7vw, 5.5rem);
-      font-weight: 300;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 400;
       line-height: 1.05;
       color: var(--text);
-      letter-spacing: -0.01em;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       opacity: 0;
       animation: fadeUp 1s cubic-bezier(.25,.46,.45,.94) forwards 0.45s;
     }
 
     .hero-bride {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(1.25rem, 3vw, 1.8rem);
+      font-size: clamp(1.25rem, 3vw, 1.9rem);
       font-style: italic;
-      font-weight: 300;
-      color: var(--gold);
+      font-weight: 400;
+      color: var(--text-mid);
       margin-top: 1rem;
       letter-spacing: 0.03em;
       opacity: 0;
@@ -193,8 +206,9 @@
     }
 
     .hero-sub {
-      font-size: 0.72rem;
-      letter-spacing: 0.25em;
+      font-family: 'LaLuxes', 'Inter', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.32em;
       text-transform: uppercase;
       color: var(--text-soft);
       opacity: 0;
@@ -234,10 +248,10 @@
       padding: 2rem;
     }
     .not-found h1 {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Playfair Display', serif;
       font-size: 2.2rem;
       font-style: italic;
-      font-weight: 300;
+      font-weight: 400;
       color: var(--text-soft);
       margin-bottom: 1rem;
     }
@@ -266,7 +280,8 @@
     }
 
     .gallery-label {
-      font-size: 0.62rem;
+      font-family: 'LaLuxes', 'Inter', sans-serif;
+      font-size: 0.68rem;
       letter-spacing: 0.3em;
       text-transform: uppercase;
       color: var(--text-soft);
@@ -340,11 +355,11 @@
     .play-ring {
       width: 54px; height: 54px;
       border-radius: 50%;
-      border: 1px solid rgba(196,162,100,0.6);
+      border: 1px solid rgba(255,255,255,0.8);
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(12,10,8,0.45);
+      background: rgba(16,15,15,0.45);
       backdrop-filter: blur(4px);
       transform: scale(0.8);
       opacity: 0;
@@ -356,7 +371,7 @@
     }
     .play-ring svg {
       width: 14px; height: 14px;
-      fill: var(--gold);
+      fill: #F9F7F5;
       margin-left: 2px;
     }
 
@@ -370,7 +385,8 @@
     .video-card:hover .card-body { background: var(--surface-2); }
 
     .card-date {
-      font-size: 0.58rem;
+      font-family: 'LaLuxes', 'Inter', sans-serif;
+      font-size: 0.62rem;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       color: var(--text-soft);
@@ -378,10 +394,10 @@
     }
 
     .card-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
       font-style: italic;
-      font-weight: 300;
+      font-weight: 400;
       color: var(--text);
       margin-bottom: 1rem;
       line-height: 1.3;
@@ -419,10 +435,10 @@
     }
 
     .btn-play {
-      background: var(--gold);
+      background: var(--text);
       color: var(--bg);
     }
-    .btn-play:hover { background: #d4b47a; }
+    .btn-play:hover { background: #2a2826; }
 
     .btn-download {
       background: transparent;
@@ -441,8 +457,8 @@
       margin-top: 1rem;
       width: 100%;
       padding: 0.85rem 1rem;
-      background: var(--gold);
-      color: var(--bg);
+      background: #F9F7F5;
+      color: #100F0F;
       font-family: 'Inter', sans-serif;
       font-size: 0.62rem;
       font-weight: 400;
@@ -453,12 +469,138 @@
       border: none;
       transition: background 0.2s;
     }
-    .lightbox-save:hover { background: #d4b47a; }
+    .lightbox-save:hover { background: #ffffff; }
     .lightbox-save:disabled { opacity: 0.6; cursor: wait; }
     .lightbox-save svg {
       width: 13px; height: 13px;
       stroke: currentColor; fill: none;
       stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── FEATURE FILMS ── */
+    .films-section {
+      padding: 5rem 2.5rem 0;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .films-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2.75rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .films-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .films-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+
+    .film-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+    .film-card.visible { opacity: 1; transform: translateY(0); }
+    .film-card:hover {
+      border-color: var(--border-glow);
+      box-shadow: 0 0 0 1px var(--border-glow), 0 16px 48px rgba(0,0,0,0.5);
+    }
+
+    .film-thumb {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+
+    .film-thumb video,
+    .film-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.55s ease;
+    }
+    .film-card:hover .film-thumb video,
+    .film-card:hover .film-thumb img { transform: scale(1.03); }
+
+    .film-play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(to top, rgba(12,10,8,0.55) 0%, transparent 60%);
+      transition: background 0.35s ease;
+    }
+    .film-card:hover .film-play-overlay {
+      background: linear-gradient(to top, rgba(12,10,8,0.72) 0%, rgba(12,10,8,0.1) 70%);
+    }
+
+    .film-play-ring {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      border: 1px solid rgba(196,162,100,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(12,10,8,0.5);
+      backdrop-filter: blur(6px);
+      transform: scale(0.85);
+      opacity: 0;
+      transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), opacity 0.3s ease;
+    }
+    .film-card:hover .film-play-ring { transform: scale(1); opacity: 1; }
+    .film-play-ring svg {
+      width: 18px; height: 18px;
+      fill: var(--gold);
+      margin-left: 3px;
+    }
+
+    .film-body {
+      padding: 1.25rem 1.4rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .film-type {
+      font-family: 'LaLuxes', 'Inter', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      margin-bottom: 0.3rem;
+    }
+
+    .film-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    /* Wide lightbox for horizontal films */
+    .lightbox.wide .lightbox-inner { max-width: 780px; }
+
+    @media (max-width: 680px) {
+      .films-section { padding: 3.5rem 1.25rem 0; }
+      .films-grid { grid-template-columns: 1fr; gap: 1rem; }
     }
 
     /* ── EMPTY STATE ── */
@@ -469,10 +611,10 @@
       border: 1px solid var(--border);
     }
     .empty-state p {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Playfair Display', serif;
       font-size: 1.6rem;
       font-style: italic;
-      font-weight: 300;
+      font-weight: 400;
       color: var(--text-soft);
     }
     .empty-state span {
@@ -595,11 +737,12 @@
       border-top: 1px solid var(--border);
     }
     footer p {
-      font-size: 0.6rem;
+      font-family: 'LaLuxes', 'Inter', sans-serif;
+      font-size: 0.65rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
       color: var(--text-soft);
-      opacity: 0.5;
+      opacity: 0.6;
     }
 
     /* ── KEYFRAMES ── */
@@ -706,6 +849,8 @@
         </div>
       </section>
 
+      <div id="featureFilmsSection"></div>
+
       <section class="gallery-section">
         <div class="gallery-meta">
           <span class="gallery-label">Short Films &amp; Reels</span>
@@ -719,10 +864,82 @@
       </footer>
     `;
 
+    buildFeatureFilms(client);
     buildGallery(client);
   }
 
   loadPortal();
+
+  // ── Build feature films (horizontal) ─────────────────
+  function buildFeatureFilms(client) {
+    const container = document.getElementById('featureFilmsSection');
+    const films = [
+      { url: client.teaser_url || '', label: 'Teaser Film',    type: 'teaser'    },
+      { url: client.highlight_url || '', label: 'Highlight Film', type: 'highlight' },
+    ].filter(f => f.url);
+
+    if (!films.length) { container.innerHTML = ''; return; }
+
+    const cards = films.map((film, i) => {
+      const src     = normalizeUrl(film.url);
+      const isEmbed = isEmbedUrl(src);
+      const thumb   = isEmbed ? getDriveThumbnail(film.url) : null;
+      const mediaEl = thumb
+        ? `<img src="${thumb}" alt="${film.label}" loading="lazy" />`
+        : `<video src="${src}" muted playsinline preload="metadata"></video>`;
+
+      return `
+        <div class="film-card" data-src="${src}" data-title="${film.label}" style="transition-delay:${i * 0.12}s">
+          <div class="film-thumb">
+            ${mediaEl}
+            <div class="film-play-overlay">
+              <div class="film-play-ring">
+                <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="film-body">
+            <p class="film-type">${film.label}</p>
+            <p class="film-title">${client.name}${client.partner ? ' &amp; ' + client.partner : ''}</p>
+          </div>
+        </div>`;
+    }).join('');
+
+    container.innerHTML = `
+      <section class="films-section">
+        <div class="films-header">
+          <span class="films-label">Feature Films</span>
+        </div>
+        <div class="films-grid">${cards}</div>
+      </section>`;
+
+    // Attach click handlers
+    container.querySelectorAll('.film-card').forEach(card => {
+      const src   = card.dataset.src;
+      const title = card.dataset.title;
+
+      // Hover preview for direct video
+      if (!isEmbedUrl(src)) {
+        const v = card.querySelector('video');
+        if (v) {
+          v.addEventListener('loadedmetadata', () => { v.currentTime = 0.01; });
+          card.querySelector('.film-thumb').addEventListener('mouseenter', () => v.play().catch(() => {}));
+          card.querySelector('.film-thumb').addEventListener('mouseleave', () => { v.pause(); v.currentTime = 0.01; });
+        }
+      }
+
+      card.addEventListener('click', e => {
+        triggerBubble(e.clientX, e.clientY);
+        openLightbox(src, title, true); // true = wide mode
+      });
+    });
+
+    // Scroll reveal
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => e.isIntersecting && e.target.classList.add('visible'));
+    }, { threshold: 0.08 });
+    container.querySelectorAll('.film-card').forEach(c => obs.observe(c));
+  }
 
   // ── Build gallery ────────────────────────────────────
   function buildGallery(client) {
@@ -838,8 +1055,9 @@
   }
 
   // ── Lightbox ──────────────────────────────────────────
-  function openLightbox(src, title) {
+  function openLightbox(src, title, wide = false) {
     const lb    = document.getElementById('lightbox');
+    lb.classList.toggle('wide', wide);
     const v     = document.getElementById('lightboxVideo');
     const embed = document.getElementById('lightboxEmbed');
     const cap   = document.getElementById('lightboxCaption');
@@ -878,6 +1096,7 @@
     const v     = document.getElementById('lightboxVideo');
     const embed = document.getElementById('lightboxEmbed');
     lb.classList.remove('open');
+    lb.classList.remove('wide');
     document.body.style.overflow = '';
     v.pause();
     setTimeout(() => { v.src = ''; embed.src = ''; }, 400);

@@ -6,24 +6,33 @@
   <title>EPS — Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    @font-face {
+      font-family: 'LaLuxes';
+      src: url('LaLuxes-regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:          #f7f5f2;
+      --bg:          #F9F7F5;
       --surface:     #ffffff;
-      --surface-2:   #f2ede8;
-      --border:      #e0d8d0;
-      --border-mid:  #ccc4b8;
-      --text:        #1a1612;
-      --text-mid:    #6b6055;
-      --text-soft:   #a09488;
-      --gold:        #b8924a;
-      --gold-bg:     #faf0db;
-      --gold-border: rgba(184,146,74,0.4);
+      --surface-2:   #F2EDE6;
+      --border:      #E2DAD0;
+      --border-mid:  #BEB4A7;
+      --text:        #000000;
+      --text-mid:    #71706F;
+      --text-soft:   #BEB4A7;
+      --gold:        #100F0F;
+      --gold-bg:     #F2EDE6;
+      --gold-border: rgba(113,112,111,0.3);
       --red:         #b03a2e;
       --red-bg:      #fdf2f1;
       --green:       #1e6b45;
@@ -62,12 +71,12 @@
     }
 
     .login-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2rem;
-      font-style: italic;
-      font-weight: 300;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       color: var(--text);
-      letter-spacing: 0.04em;
       line-height: 1;
       margin-bottom: 0.3rem;
     }
@@ -139,12 +148,12 @@
     .header-left { display: flex; align-items: center; gap: 0.875rem; }
 
     .header-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.3rem;
-      font-style: italic;
-      font-weight: 300;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
       color: var(--text);
-      letter-spacing: 0.04em;
     }
     .header-sep { width: 1px; height: 16px; background: var(--border); }
     .header-label {
@@ -670,6 +679,18 @@
           <span class="form-hint">Paste a Dropbox/Google Drive/direct link to a photo — shown as the hero background on their portal</span>
         </div>
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Teaser Film URL (optional)</label>
+          <input class="form-input" type="url" id="clientTeaser" placeholder="Google Drive or Dropbox link to teaser film" autocomplete="off" />
+          <span class="form-hint">Horizontal film — shown at the top of their portal</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Highlight Film URL (optional)</label>
+          <input class="form-input" type="url" id="clientHighlight" placeholder="Google Drive or Dropbox link to highlight film" autocomplete="off" />
+          <span class="form-hint">Horizontal film — shown at the top of their portal</span>
+        </div>
+      </div>
       <button class="create-btn" id="createClientBtn">
         <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Create Portal
@@ -753,22 +774,26 @@
 
   // ── Create portal ─────────────────────────────────────
   document.getElementById('createClientBtn').addEventListener('click', async () => {
-    const name    = document.getElementById('clientName').value.trim();
-    const partner = document.getElementById('clientPartner').value.trim();
-    const date    = document.getElementById('clientDate').value.trim();
-    const slug    = document.getElementById('clientSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-    const cover   = document.getElementById('clientCover').value.trim();
+    const name      = document.getElementById('clientName').value.trim();
+    const partner   = document.getElementById('clientPartner').value.trim();
+    const date      = document.getElementById('clientDate').value.trim();
+    const slug      = document.getElementById('clientSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+    const cover     = document.getElementById('clientCover').value.trim();
+    const teaser    = document.getElementById('clientTeaser').value.trim();
+    const highlight = document.getElementById('clientHighlight').value.trim();
 
     if (!name) { toast('Please enter the bride\'s name.'); return; }
     if (!slug) { toast('Please enter a URL slug.'); return; }
 
     try {
       const { error } = await sb.from('clients').insert([{
-        name, partner, date, slug, cover_photo: cover || '', videos: []
+        name, partner, date, slug, cover_photo: cover || '',
+        teaser_url: teaser || '', highlight_url: highlight || '',
+        videos: []
       }]);
       if (error) throw error;
 
-      ['clientName','clientPartner','clientDate','clientSlug','clientCover'].forEach(id => {
+      ['clientName','clientPartner','clientDate','clientSlug','clientCover','clientTeaser','clientHighlight'].forEach(id => {
         document.getElementById(id).value = '';
       });
       toast(`Portal created for ${name} ✓`);
