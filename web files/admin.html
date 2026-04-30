@@ -4,8 +4,381 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Eli Pixler Films · Admin</title>
-<link rel="stylesheet" href="styles/tokens.css" />
-<link rel="stylesheet" href="styles/portal.css" />
+
+<style>
+/* tokens.css */
+/* Eli Pixler Films — Design Tokens
+   ----------------------------------------------------------------
+   Single source of truth for color, type, spacing, motion.
+   Everything in the design system pulls from these vars.
+*/
+
+@font-face {
+  font-family: "La Luxes Serif";
+  src: url("fonts/LaLuxes-regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap");
+
+:root {
+  /* ---------- Color ---------- */
+  --ink:       #100F0F;  /* off-black, body type, primary fill */
+  --graphite:  #71706F;  /* warm dark gray, secondary type */
+  --clay:      #BEB4A7;  /* warm beige, accent surfaces */
+  --bone:      #F2EDE6;  /* primary background — the "paper" tone */
+  --paper:     #F9F7F5;  /* lightest tint, cards on bone */
+
+  /* Functional aliases */
+  --fg-primary:    var(--ink);
+  --fg-secondary:  var(--graphite);
+  --fg-on-dark:    var(--bone);
+  --bg-page:       var(--bone);
+  --bg-elevated:   var(--paper);
+  --bg-accent:     var(--clay);
+  --hairline:      rgba(16, 15, 15, 0.12);
+  --hairline-soft: rgba(16, 15, 15, 0.06);
+  --scrim:         rgba(16, 15, 15, 0.35);
+  --scrim-strong:  rgba(16, 15, 15, 0.5);
+
+  /* ---------- Type families ---------- */
+  --font-display:  "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-serif:    "Cormorant Garamond", Georgia, serif;
+  --font-display-alt: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  --font-script:   "La Luxes Serif", "Cormorant Garamond", cursive;
+  --font-ui:       "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+
+  /* ---------- Type scale (px values, for clarity) ---------- */
+  --fs-eyebrow:  12px;   /* uppercase nav / tags */
+  --fs-caption:  13px;
+  --fs-body-sm:  15px;
+  --fs-body:     17px;
+  --fs-body-lg:  19px;
+  --fs-h6:       20px;
+  --fs-h5:       24px;
+  --fs-h4:       32px;
+  --fs-h3:       44px;
+  --fs-h2:       64px;
+  --fs-h1:       96px;
+  --fs-display:  144px;  /* hero wordmark */
+
+  /* ---------- Tracking ---------- */
+  --tracking-tight:   -0.01em;
+  --tracking-normal:   0;
+  --tracking-loose:    0.08em;
+  --tracking-eyebrow:  0.32em;
+  --tracking-nav:      0.40em;
+
+  /* ---------- Leading ---------- */
+  --leading-tight:    1.05;
+  --leading-display:  1.1;
+  --leading-snug:     1.25;
+  --leading-body:     1.7;
+
+  /* ---------- Spacing (8pt) ---------- */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   24px;
+  --space-6:   32px;
+  --space-7:   48px;
+  --space-8:   64px;
+  --space-9:   96px;
+  --space-10: 128px;
+  --space-11: 192px;
+
+  /* ---------- Radii ---------- */
+  --radius-0:    0;          /* default — almost everything */
+  --radius-pill: 999px;      /* tags only */
+
+  /* ---------- Borders ---------- */
+  --border-hairline: 1px solid var(--hairline);
+  --border-ink:      1px solid var(--ink);
+
+  /* ---------- Shadows (sparing) ---------- */
+  --shadow-none:  none;
+  --shadow-soft:  0 16px 40px -24px rgba(16, 15, 15, 0.18);
+  --shadow-photo: 0 28px 60px -32px rgba(16, 15, 15, 0.28);
+
+  /* ---------- Motion ---------- */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-micro:     200ms;
+  --dur-standard:  400ms;
+  --dur-hero:      800ms;
+
+  /* ---------- Layout rails ---------- */
+  --max-w-prose:   640px;
+  --max-w-content: 1100px;
+  --max-w-wide:    1440px;
+  --gutter:        var(--space-7);
+}
+
+/* ---------- Semantic element styles ----------
+   Pull these in when you want the brand voice without rewriting.
+   Use as `class="ep-h1"` or apply directly to elements via a
+   container class.
+*/
+
+.ep-eyebrow {
+  font-family: var(--font-ui);
+  font-size: var(--fs-eyebrow);
+  font-weight: 500;
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--fg-secondary);
+}
+
+.ep-nav {
+  font-family: var(--font-ui);
+  font-size: var(--fs-eyebrow);
+  font-weight: 400;
+  letter-spacing: var(--tracking-nav);
+  text-transform: uppercase;
+  color: var(--fg-primary);
+}
+
+.ep-display,
+h1.ep {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--fs-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-primary);
+}
+
+.ep-h1, h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--fs-h1);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-primary);
+}
+
+.ep-h2, h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--fs-h2);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-primary);
+}
+
+.ep-h3, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-h3);
+  line-height: var(--leading-snug);
+  color: var(--fg-primary);
+}
+
+.ep-h4, h4 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-h4);
+  line-height: var(--leading-snug);
+  color: var(--fg-primary);
+}
+
+.ep-script {
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-size: var(--fs-h2);
+  line-height: 1;
+  color: var(--fg-primary);
+}
+
+.ep-body, p {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-body);
+  line-height: var(--leading-body);
+  color: var(--fg-primary);
+  text-wrap: pretty;
+}
+
+.ep-body-lg {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-body-lg);
+  line-height: var(--leading-body);
+  color: var(--fg-primary);
+}
+
+.ep-caption {
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: var(--fs-caption);
+  letter-spacing: var(--tracking-loose);
+  color: var(--fg-secondary);
+}
+
+.ep-quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--fs-h4);
+  line-height: 1.4;
+  color: var(--fg-primary);
+}
+
+/* Reset the things that conflict with the brand. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body.ep-page {
+  background: var(--bg-page);
+  color: var(--fg-primary);
+  font-family: var(--font-serif);
+  font-size: var(--fs-body);
+  line-height: var(--leading-body);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* portal.css */
+/* Client Portal — local overrides on top of brand tokens */
+
+:root {
+  /* These map the brief's hex codes to our system. */
+  --portal-bg:        #F9F7F5;  /* page background */
+  --portal-surface:   #F2EDE6;  /* card / hero overlay */
+  --portal-border:    #E2DAD0;  /* hairlines, field borders */
+  --portal-taupe:     #BEB4A7;  /* accent surface */
+  --portal-mid:       #71706F;  /* secondary text */
+  --portal-ink:       #000000;  /* body text */
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--portal-bg);
+  color: var(--portal-ink);
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+*, *::before, *::after { box-sizing: border-box; }
+
+a { color: inherit; }
+button { font: inherit; }
+
+/* ---------- Type helpers ---------- */
+.h-display {
+  font-family: var(--font-display-alt); /* Playfair Display */
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.05;
+  color: var(--portal-ink);
+}
+.h-italic {
+  font-family: var(--font-serif); /* Cormorant Garamond italic */
+  font-style: italic;
+  font-weight: 400;
+  color: var(--portal-ink);
+}
+.label-caps {
+  font-family: var(--font-script); /* La Luxes Serif */
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--portal-mid);
+}
+.ui-caps {
+  /* fallback for tiny eyebrow text where La Luxes reads too decorative */
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--portal-mid);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  padding: 16px 28px;
+  border: 1px solid var(--portal-ink);
+  background: transparent;
+  color: var(--portal-ink);
+  cursor: pointer;
+  transition: background 200ms var(--ease-out-soft),
+              color 200ms var(--ease-out-soft);
+}
+.btn:hover { background: var(--portal-ink); color: var(--portal-bg); }
+.btn-primary { background: var(--portal-ink); color: var(--portal-bg); }
+.btn-primary:hover {
+  background: var(--portal-bg);
+  color: var(--portal-ink);
+}
+.btn-ghost { border-color: var(--portal-border); color: var(--portal-mid); }
+.btn-ghost:hover { background: var(--portal-surface); color: var(--portal-ink); border-color: var(--portal-ink); }
+.btn-sm { padding: 10px 18px; font-size: 10px; }
+.btn-danger:hover { background: #1a0a0a; color: #fff; border-color: #1a0a0a; }
+
+/* ---------- Inputs ---------- */
+.field { display: flex; flex-direction: column; gap: 10px; }
+.field label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--portal-mid);
+}
+.field input,
+.field textarea {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  color: var(--portal-ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--portal-ink);
+  padding: 12px 0;
+  outline: none;
+  width: 100%;
+}
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--portal-mid);
+  font-style: italic;
+}
+.field textarea { resize: none; min-height: 80px; }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--portal-surface);
+  border: 1px solid var(--portal-border);
+  padding: 28px;
+}
+
+/* ---------- Decorative divider ---------- */
+.divider-em {
+  display: flex; align-items: center; justify-content: center;
+  gap: 18px;
+}
+.divider-em .line {
+  width: 60px; height: 1px;
+  background: var(--portal-ink);
+}
+.divider-em .glyph {
+  font-family: var(--font-script);
+  font-size: 22px;
+  color: var(--portal-ink);
+  line-height: 1;
+}
+
+</style>
 <style>
   .topbar {
     border-bottom: 1px solid var(--portal-border);
@@ -463,7 +836,264 @@
 
   <div class="toast" id="toast">Saved</div>
 
-  <script src="scripts/store.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+/* store.js */
+// Eli Pixler Films — Supabase-backed portal store
+// Replaces the localStorage prototype with the real database.
+
+(function () {
+  const SUPABASE_URL = "https://agrymwvcdnheccromupd.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_otI76Wja5LMZdVf6ixO-rA_xpFylkVp";
+  const SESSION_KEY  = "epfilms.session.v1";
+  const VisitedKey   = "epfilms.visited.v1";
+  const ProfileKey   = "epfilms.profile.v1";
+
+  function getSb() {
+    return window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+
+  // Map Supabase row → store portal object
+  function mapRow(row) {
+    if (!row) return null;
+    return {
+      id:        row.id,
+      slug:      row.slug,
+      bride:     row.name       || "",
+      partner:   row.partner    || "",
+      date:      row.date       || "",
+      venue:     row.venue      || "",
+      lat:       row.lat        ?? null,
+      lng:       row.lng        ?? null,
+      cover:     row.cover_photo || "",
+      sneak:     row.sneak_url  || "",   // "Sneak Peek" / first film
+      full:      row.full_url   || "",   // "Full Film"
+      monogram:  row.monogram   || "",
+      videos:    row.videos     || [],
+      createdAt: row.created_at,
+    };
+  }
+
+  // Map store portal object → Supabase row for insert/update
+  function mapToRow(input) {
+    const row = {};
+    if (input.bride     !== undefined) row.name         = input.bride;
+    if (input.partner   !== undefined) row.partner      = input.partner;
+    if (input.date      !== undefined) row.date         = input.date;
+    if (input.venue     !== undefined) row.venue        = input.venue;
+    if (input.lat       !== undefined) row.lat          = input.lat;
+    if (input.lng       !== undefined) row.lng          = input.lng;
+    if (input.cover     !== undefined) row.cover_photo  = input.cover;
+    if (input.sneak     !== undefined) row.sneak_url    = input.sneak;
+    if (input.full      !== undefined) row.full_url     = input.full;
+    if (input.monogram  !== undefined) row.monogram     = input.monogram;
+    if (input.slug      !== undefined) row.slug         = input.slug;
+    if (input.videos    !== undefined) row.videos       = input.videos;
+    return row;
+  }
+
+  function slugify(s) {
+    return (s || "")
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function autoMonogram(bride, partner) {
+    const a = (bride   || "").trim().charAt(0).toUpperCase();
+    const b = (partner || "").trim().charAt(0).toUpperCase();
+    if (a && b) return a + " & " + b;
+    if (a) return a;
+    return "ep";
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return "—";
+    try {
+      const d = new Date(iso + (iso.length === 10 ? "T12:00:00" : ""));
+      return d.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+    } catch (e) { return iso; }
+  }
+
+  // ---- Built-in geocoder (same city index as prototype) ----
+  const CITY_INDEX = [
+    { match: /aiken/i,         lat: 33.5604, lng: -81.7196, label: "Aiken, South Carolina" },
+    { match: /charleston/i,    lat: 32.7765, lng: -79.9311, label: "Charleston, South Carolina" },
+    { match: /savannah/i,      lat: 32.0809, lng: -81.0912, label: "Savannah, Georgia" },
+    { match: /atlanta/i,       lat: 33.7490, lng: -84.3880, label: "Atlanta, Georgia" },
+    { match: /athens/i,        lat: 33.9519, lng: -83.3576, label: "Athens, Georgia" },
+    { match: /nashville/i,     lat: 36.1627, lng: -86.7816, label: "Nashville, Tennessee" },
+    { match: /asheville/i,     lat: 35.5951, lng: -82.5515, label: "Asheville, North Carolina" },
+    { match: /charlotte/i,     lat: 35.2271, lng: -80.8431, label: "Charlotte, North Carolina" },
+    { match: /napa/i,          lat: 38.2975, lng: -122.2869, label: "Napa, California" },
+    { match: /malibu/i,        lat: 34.0259, lng: -118.7798, label: "Malibu, California" },
+    { match: /aspen/i,         lat: 39.1911, lng: -106.8175, label: "Aspen, Colorado" },
+    { match: /jackson/i,       lat: 43.4799, lng: -110.7624, label: "Jackson, Wyoming" },
+    { match: /new york|nyc|manhattan/i, lat: 40.7128, lng: -74.0060, label: "New York, New York" },
+    { match: /the hamptons|hamptons/i,  lat: 41.0367, lng: -71.9540, label: "The Hamptons, New York" },
+    { match: /newport/i,       lat: 41.4901, lng: -71.3128, label: "Newport, Rhode Island" },
+    { match: /tuscany|florence/i, lat: 43.7711, lng: 11.2486, label: "Tuscany, Italy" },
+    { match: /lake como|como/i, lat: 45.9876, lng: 9.2580,  label: "Lake Como, Italy" },
+    { match: /amalfi/i,        lat: 40.6340, lng: 14.6027,  label: "Amalfi Coast, Italy" },
+    { match: /paris/i,         lat: 48.8566, lng: 2.3522,   label: "Paris, France" },
+    { match: /santorini/i,     lat: 36.3932, lng: 25.4615,  label: "Santorini, Greece" },
+    { match: /bali|ubud/i,     lat: -8.4095, lng: 115.1889, label: "Bali, Indonesia" },
+    { match: /tulum/i,         lat: 20.2114, lng: -87.4654, label: "Tulum, Mexico" },
+    { match: /cabo/i,          lat: 22.8905, lng: -109.9167, label: "Cabo San Lucas, Mexico" },
+  ];
+
+  function geocode(q) {
+    if (!q) return null;
+    const m = q.match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+    if (m) {
+      const lat = parseFloat(m[1]), lng = parseFloat(m[2]);
+      if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180)
+        return { lat, lng, label: q };
+    }
+    for (const c of CITY_INDEX) if (c.match.test(q)) return { lat: c.lat, lng: c.lng, label: c.label };
+    return null;
+  }
+
+  // ---- Async PortalStore ----
+  const PortalStore = {
+    async list() {
+      const sb = getSb();
+      const { data, error } = await sb.from("clients").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []).map(mapRow);
+    },
+
+    async get(idOrSlug) {
+      if (!idOrSlug) return null;
+      const sb = getSb();
+      const { data, error } = await sb.from("clients").select("*")
+        .or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`)
+        .maybeSingle();
+      if (error || !data) return null;
+      return mapRow(data);
+    },
+
+    async create(input) {
+      const sb = getSb();
+      let slug = input.slug || slugify((input.bride || "") + (input.partner ? "-" + input.partner : ""));
+      // Auto-geocode venue if no coords given
+      let lat = input.lat ?? null, lng = input.lng ?? null;
+      if ((lat == null || lng == null) && input.venue) {
+        const g = geocode(input.venue);
+        if (g) { lat = g.lat; lng = g.lng; }
+      }
+      const monogram = (input.monogram || "").trim() || autoMonogram(input.bride, input.partner);
+      const row = {
+        name:        input.bride   || "",
+        partner:     input.partner || "",
+        date:        input.date    || "",
+        venue:       input.venue   || "",
+        lat, lng,
+        slug,
+        cover_photo: input.cover   || "",
+        sneak_url:   input.sneak   || "",
+        full_url:    input.full    || "",
+        monogram,
+        videos:      [],
+      };
+      const { data, error } = await sb.from("clients").insert([row]).select().single();
+      if (error) throw error;
+      return mapRow(data);
+    },
+
+    async update(id, patch) {
+      const sb = getSb();
+      const row = mapToRow(patch);
+      const { data, error } = await sb.from("clients").update(row).eq("id", id).select().single();
+      if (error) throw error;
+      return mapRow(data);
+    },
+
+    async remove(id) {
+      const sb = getSb();
+      const { error } = await sb.from("clients").delete().eq("id", id);
+      if (error) throw error;
+    },
+
+    async addVideo(id, video) {
+      const sb = getSb();
+      // Fetch current videos array
+      const { data: current } = await sb.from("clients").select("videos").eq("id", id).single();
+      const videos = current?.videos || [];
+      videos.push({
+        id:    "v_" + Math.random().toString(36).slice(2, 9),
+        title: video.title || "Untitled",
+        date:  video.date  || "",
+        url:   video.url   || "",
+        thumb: video.thumb || "",
+      });
+      const { error } = await sb.from("clients").update({ videos }).eq("id", id);
+      if (error) throw error;
+      return videos;
+    },
+
+    async removeVideo(id, vid) {
+      const sb = getSb();
+      const { data: current } = await sb.from("clients").select("videos").eq("id", id).single();
+      const videos = (current?.videos || []).filter(v => v.id !== vid);
+      const { error } = await sb.from("clients").update({ videos }).eq("id", id);
+      if (error) throw error;
+      return videos;
+    },
+  };
+
+  // ---- Session (password stays local — no need for DB) ----
+  const Session = {
+    isAuthed() { return localStorage.getItem(SESSION_KEY) === "ok"; },
+    login(pw)  {
+      if (pw === "2003") { localStorage.setItem(SESSION_KEY, "ok"); return true; }
+      return false;
+    },
+    logout()   { localStorage.removeItem(SESSION_KEY); },
+  };
+
+  // ---- First-visit tracking (local only, per device) ----
+  const Visits = {
+    seen(slug) {
+      try { return !!(JSON.parse(localStorage.getItem(VisitedKey) || "{}")[slug]); }
+      catch (e) { return false; }
+    },
+    mark(slug) {
+      try {
+        const v = JSON.parse(localStorage.getItem(VisitedKey) || "{}");
+        v[slug] = Date.now();
+        localStorage.setItem(VisitedKey, JSON.stringify(v));
+      } catch (e) {}
+    },
+    reset() { localStorage.removeItem(VisitedKey); },
+  };
+
+  // ---- Studio profile (local) ----
+  const Profile = {
+    get() {
+      try { return JSON.parse(localStorage.getItem(ProfileKey) || "null") || defaultProfile(); }
+      catch (e) { return defaultProfile(); }
+    },
+    save(p) { localStorage.setItem(ProfileKey, JSON.stringify(p)); return p; },
+  };
+  function defaultProfile() {
+    return { name: "Eli Pixler Films", email: "hello@elipixlerfilms.com", phone: "", instagram: "elipixlerfilms" };
+  }
+
+  // Expose globals (same surface as prototype so HTML needs minimal changes)
+  window.autoMonogram  = autoMonogram;
+  window.geocodeCity   = geocode;
+  window.slugify       = slugify;
+  window.fmtDate       = fmtDate;
+  window.PortalStore   = PortalStore;
+  window.Session       = Session;
+  window.Visits        = Visits;
+  window.Profile       = Profile;
+})();
+
+  </script>
   <script>
     if (!Session.isAuthed()) {
       window.location.replace("index.html");
@@ -493,33 +1123,33 @@
     fp.addEventListener("input", recomputeSlug);
 
     // ---------- Create ----------
-    $("#createBtn").addEventListener("click", () => {
+    $("#createBtn").addEventListener("click", async () => {
       if (!fb.value.trim()) {
         fb.focus();
         toast("Bride's name is required");
         return;
       }
-      const portal = PortalStore.create({
-        bride: fb.value.trim(),
-        partner: fp.value.trim(),
-        date: $("#f_date").value,
-        slug: fs.value.trim() || undefined,
-        monogram: $("#f_monogram").value.trim(),
-        email: $("#f_email").value.trim(),
-        venue: $("#f_venue").value.trim(),
-        cover: $("#f_cover").value.trim(),
-        sneak:  $("#f_sneak").value.trim(),
-        teaser: $("#f_teaser").value.trim(),
-        full:   $("#f_full").value.trim(),
-      });
-      // Reset first-visit reveal so the bride sees the intro
-      Visits.reset && (function(){ const all = JSON.parse(localStorage.getItem("epfilms.visited.v1") || "{}"); delete all[portal.slug]; localStorage.setItem("epfilms.visited.v1", JSON.stringify(all)); })();
-      // reset
-      ["f_bride","f_partner","f_date","f_slug","f_monogram","f_email","f_venue","f_cover","f_sneak","f_teaser","f_full"]
-        .forEach(id => $("#" + id).value = "");
-      slugTouched = false;
-      render();
-      toast("Portal created — " + portal.slug);
+      try {
+        const portal = await PortalStore.create({
+          bride:    fb.value.trim(),
+          partner:  fp.value.trim(),
+          date:     $("#f_date").value,
+          slug:     fs.value.trim() || undefined,
+          monogram: $("#f_monogram").value.trim(),
+          email:    $("#f_email").value.trim(),
+          venue:    $("#f_venue").value.trim(),
+          cover:    $("#f_cover").value.trim(),
+          sneak:    $("#f_sneak").value.trim(),
+          full:     $("#f_full").value.trim(),
+        });
+        ["f_bride","f_partner","f_date","f_slug","f_monogram","f_email","f_venue","f_cover","f_sneak","f_full"]
+          .forEach(id => { const el = $("#" + id); if (el) el.value = ""; });
+        slugTouched = false;
+        await render();
+        toast("Portal created — " + portal.slug);
+      } catch (err) {
+        toast("Error: " + (err.message || "Could not create portal"));
+      }
     });
 
     // ---------- Render list ----------
@@ -531,8 +1161,9 @@
       return "client.html?bride=" + encodeURIComponent(slug);
     }
 
-    function render() {
-      const portals = PortalStore.list();
+    async function render() {
+      list.innerHTML = `<p class="empty" style="opacity:0.5;">Loading…</p>`;
+      const portals = await PortalStore.list();
       $("#listCount").textContent = `All Portals · ${portals.length}`;
       if (!portals.length) {
         list.innerHTML = `<p class="empty">No portals yet — create the first one above.</p>`;
@@ -599,19 +1230,24 @@
       return (s || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
     }
 
-    list.addEventListener("click", (e) => {
+    list.addEventListener("click", async (e) => {
       const btn = e.target.closest("[data-act]");
       if (!btn) return;
       const row = e.target.closest(".portal-row");
       const id = row?.dataset.id;
-      const portal = PortalStore.get(id);
       const act = btn.dataset.act;
+
+      // Load portal async for actions that need it
+      let portal = null;
+      if (["preview","replay","copy","delete","addvid","email"].includes(act)) {
+        portal = await PortalStore.get(id);
+        if (!portal && act !== "delete") return;
+      }
 
       if (act === "toggle") {
         if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
-        render();
+        await render();
       } else if (act === "preview") {
-        // Same-tab navigation so the project preview keeps its auth.
         window.location.href = clientUrl(portal.slug);
       } else if (act === "replay") {
         try {
@@ -625,10 +1261,10 @@
         navigator.clipboard?.writeText(u);
         toast("Link copied");
       } else if (act === "delete") {
-        if (confirm(`Delete portal for ${portal.bride}? This can't be undone.`)) {
-          PortalStore.remove(id);
+        if (confirm(`Delete this portal? This can't be undone.`)) {
+          await PortalStore.remove(id);
           expanded.delete(id);
-          render();
+          await render();
           toast("Portal deleted");
         }
       } else if (act === "addvid") {
@@ -636,13 +1272,13 @@
         const title = panel.querySelector('[data-v="title"]').value.trim();
         const url   = panel.querySelector('[data-v="url"]').value.trim();
         if (!title || !url) { toast("Title and URL required"); return; }
-        PortalStore.addVideo(id, { title, url, date: portal.date });
-        render();
+        await PortalStore.addVideo(id, { title, url, date: portal.date });
+        await render();
         toast("Video added");
       } else if (act === "delvid") {
         const vrow = e.target.closest(".v-row");
-        PortalStore.removeVideo(id, vrow.dataset.vid);
-        render();
+        await PortalStore.removeVideo(id, vrow.dataset.vid);
+        await render();
         toast("Video removed");
       } else if (act === "email") {
         if (!portal.email) { toast("Add bride email first"); return; }
@@ -704,12 +1340,12 @@
       input.value = "";
       input.click();
     });
-    list.addEventListener("change", (e) => {
+    list.addEventListener("change", async (e) => {
       const input = e.target.closest("[data-dz-input]");
       if (!input) return;
       const row = e.target.closest(".portal-row");
       const id = row?.dataset.id;
-      const portal = PortalStore.get(id);
+      const portal = await PortalStore.get(id);
       const panel = e.target.closest(".videos-panel");
       handleFiles(input.files, id, portal, panel);
     });
@@ -724,14 +1360,14 @@
       if (!dz) return;
       dz.classList.remove("is-over");
     });
-    list.addEventListener("drop", (e) => {
+    list.addEventListener("drop", async (e) => {
       const dz = e.target.closest("[data-dz]");
       if (!dz) return;
       e.preventDefault();
       dz.classList.remove("is-over");
       const row = e.target.closest(".portal-row");
       const id = row?.dataset.id;
-      const portal = PortalStore.get(id);
+      const portal = await PortalStore.get(id);
       const panel = e.target.closest(".videos-panel");
       handleFiles(e.dataTransfer.files, id, portal, panel);
     });
@@ -768,15 +1404,16 @@
             // Save with blob URL — works for the session.
             const url = URL.createObjectURL(file);
             const title = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
-            PortalStore.addVideo(id, { title, url, date: portal.date });
-            setTimeout(() => { row.remove(); render(); }, 900);
+            PortalStore.addVideo(id, { title, url, date: portal?.date || "" })
+              .then(() => render());
+            setTimeout(() => { row.remove(); }, 900);
           }
         };
         setTimeout(tick, 220);
       });
     }
 
-    render();
+    render(); // async — fires and updates list from Supabase
   </script>
 </body>
 </html>
