@@ -1,1075 +1,782 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EPS — Admin</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Eli Pixler Films · Admin</title>
+<link rel="stylesheet" href="styles/tokens.css" />
+<link rel="stylesheet" href="styles/portal.css" />
+<style>
+  .topbar {
+    border-bottom: 1px solid var(--portal-border);
+    background: var(--portal-surface);
+    padding: 22px 48px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
+  .topbar .brand { display: flex; align-items: center; gap: 14px; }
+  .topbar .glyph-mono {
+    font-family: var(--font-script);
+    font-size: 30px;
+    line-height: 1;
+    color: var(--portal-ink);
+  }
+  .topbar .name {
+    font-family: var(--font-display-alt);
+    font-size: 18px; letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  .topbar .center {
+    font-family: var(--font-script);
+    font-size: 14px; letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--portal-mid);
+    text-align: center;
+  }
+  .topbar .right { display: flex; justify-content: flex-end; gap: 18px; }
 
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  main { max-width: 1180px; margin: 0 auto; padding: 80px 48px 120px; }
 
-    :root {
-      --bg:          #F9F7F5;
-      --surface:     #ffffff;
-      --surface-2:   #F2EDE6;
-      --border:      #E2DAD0;
-      --border-mid:  #BEB4A7;
-      --text:        #100F0F;
-      --text-mid:    #71706F;
-      --text-soft:   #BEB4A7;
-      --gold:        #100F0F;
-      --gold-bg:     #F2EDE6;
-      --gold-border: rgba(113,112,111,0.3);
-      --red:         #b03a2e;
-      --red-bg:      #fdf2f1;
-      --green:       #1e6b45;
-      --green-bg:    #eaf5ee;
-    }
+  h1.page {
+    font-family: var(--font-display-alt);
+    font-weight: 400;
+    font-size: 56px;
+    line-height: 1.05;
+    margin: 0 0 8px;
+    letter-spacing: -0.005em;
+  }
+  .pg-sub {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 20px;
+    color: var(--portal-mid);
+    margin: 0 0 64px;
+  }
 
-    html { font-size: 16px; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-weight: 300;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+  .section-eyebrow {
+    font-family: var(--font-ui);
+    font-size: 11px; letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--portal-mid);
+    margin: 0 0 24px;
+  }
 
-    /* ──────────────── LOGIN ──────────────────────── */
-    .login-screen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      background: linear-gradient(160deg, #ffffff 0%, var(--bg) 100%);
-    }
+  /* ---------- Profile card ---------- */
+  .profile {
+    padding: 36px 48px;
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    margin-bottom: 56px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 32px;
+    align-items: center;
+  }
+  .profile .ring {
+    width: 84px; height: 84px;
+    border-radius: 50%;
+    border: 1px solid var(--portal-border);
+    display: grid; place-items: center;
+    font-family: var(--font-script);
+    font-size: 38px;
+    color: var(--portal-ink);
+    background: var(--portal-bg);
+  }
+  .profile-fields {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px 32px;
+  }
+  .profile-fields .field input { font-size: 14px; padding: 10px 0; }
+  .profile-eyebrow {
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--portal-mid);
+    margin-bottom: 6px;
+  }
+  .profile h3 {
+    font-family: var(--font-display-alt);
+    font-weight: 400;
+    font-size: 22px;
+    margin: 0 0 4px;
+    letter-spacing: -0.005em;
+  }
+  .profile-note {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--portal-mid);
+    margin: 0;
+  }
+  .profile-save {
+    align-self: end;
+  }
+  .profile-saved-pill {
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--portal-mid);
+    opacity: 0;
+    transition: opacity 200ms var(--ease-out-soft);
+    margin-top: 8px;
+    text-align: right;
+  }
+  .profile-saved-pill.show { opacity: 1; }
 
-    .login-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 3rem 2.75rem 3.25rem;
-      width: 100%;
-      max-width: 380px;
-      text-align: center;
-      box-shadow: 0 4px 32px rgba(0,0,0,0.06);
-    }
+  /* ---------- Create Form ---------- */
+  .create {
+    padding: 48px;
+    background: var(--portal-surface);
+    border: 1px solid var(--portal-border);
+    margin-bottom: 96px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px 48px;
+  }
+  .form-grid .full { grid-column: span 2; }
+  .form-actions {
+    display: flex; justify-content: flex-end;
+    margin-top: 48px;
+    border-top: 1px solid var(--portal-border);
+    padding-top: 32px;
+  }
 
-    .login-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.8rem;
-      font-weight: 400;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text);
-      line-height: 1;
-      margin-bottom: 0.3rem;
-    }
-    .login-sub {
-      font-size: 0.6rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-      margin-bottom: 2.25rem;
-    }
+  /* ---------- Portal list ---------- */
+  .portal-row {
+    border-top: 1px solid var(--portal-border);
+    padding: 32px 0;
+  }
+  .portal-row:last-child { border-bottom: 1px solid var(--portal-border); }
+  .portal-head {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr auto;
+    gap: 24px;
+    align-items: center;
+  }
+  .portal-name {
+    font-family: var(--font-display-alt);
+    font-size: 28px; line-height: 1.2;
+    letter-spacing: -0.005em;
+  }
+  .portal-name .partner {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--portal-mid);
+    font-size: 22px;
+  }
+  .portal-meta {
+    font-family: var(--font-ui);
+    font-size: 11px; letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--portal-mid);
+  }
+  .slug-pill {
+    display: inline-block;
+    font-family: var(--font-ui);
+    font-size: 11px; letter-spacing: 0.18em;
+    color: var(--portal-ink);
+    background: var(--portal-bg);
+    border: 1px solid var(--portal-border);
+    padding: 6px 12px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-ui);
+    font-size: 11px; letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--portal-mid);
+  }
+  .badge .num {
+    font-family: var(--font-display-alt);
+    font-size: 22px;
+    color: var(--portal-ink);
+    letter-spacing: 0;
+  }
+  .row-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 
-    .login-input {
-      width: 100%;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      padding: 0.8rem 1rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 300;
-      color: var(--text);
-      outline: none;
-      margin-bottom: 0.875rem;
-      text-align: center;
-      letter-spacing: 0.15em;
-      transition: border-color 0.2s;
-    }
-    .login-input:focus { border-color: var(--border-mid); }
+  /* ---------- Expanded videos panel ---------- */
+  .videos-panel {
+    margin-top: 28px;
+    padding: 32px;
+    background: var(--portal-bg);
+    border: 1px solid var(--portal-border);
+    display: none;
+  }
+  .videos-panel.open { display: block; }
+  .add-video {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr auto;
+    gap: 24px;
+    align-items: end;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--portal-border);
+    margin-bottom: 28px;
+  }
 
-    .login-btn {
-      width: 100%;
-      background: var(--text);
-      color: #fff;
-      border: none;
-      padding: 0.85rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.68rem;
-      font-weight: 400;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .login-btn:hover { background: var(--gold); }
+  /* ---------- Drop zone ---------- */
+  .drop-zone {
+    margin-bottom: 24px;
+    padding: 36px 28px;
+    background: var(--portal-surface);
+    border: 1px dashed var(--portal-border);
+    text-align: center;
+    cursor: pointer;
+    transition: background 160ms var(--ease-out-soft),
+                border-color 160ms var(--ease-out-soft);
+  }
+  .drop-zone:hover,
+  .drop-zone.is-over {
+    background: var(--portal-bg);
+    border-color: var(--portal-ink);
+  }
+  .drop-zone .dz-glyph {
+    font-family: var(--font-script);
+    font-size: 36px;
+    line-height: 1;
+    color: var(--portal-ink);
+    margin-bottom: 10px;
+  }
+  .drop-zone .dz-title {
+    font-family: var(--font-display-alt);
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  .drop-zone .dz-sub {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--portal-mid);
+    margin: 0 0 12px;
+  }
+  .drop-zone .dz-or {
+    display: inline-flex; align-items: center; gap: 14px;
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--portal-mid);
+  }
+  .drop-zone .dz-or::before,
+  .drop-zone .dz-or::after {
+    content: ""; width: 28px; height: 1px; background: var(--portal-border);
+  }
+  .upload-row {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--portal-border);
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 18px; align-items: center;
+  }
+  .upload-row:last-child { border-bottom: 0; }
+  .upload-row .u-name {
+    font-family: var(--font-display-alt);
+    font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .upload-row .u-meta {
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--portal-mid);
+  }
+  .upload-row .u-bar {
+    height: 3px;
+    background: var(--portal-border);
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .upload-row .u-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--portal-ink);
+    transition: width 200ms linear;
+  }
+  .upload-row .u-status {
+    font-family: var(--font-ui);
+    font-size: 10px; letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--portal-mid);
+  }
+  .upload-row.done .u-status { color: var(--portal-ink); }
+  .video-list { display: flex; flex-direction: column; }
+  .video-list .v-row {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr auto;
+    gap: 24px; align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--portal-border);
+  }
+  .video-list .v-row:last-child { border-bottom: 0; }
+  .v-title {
+    font-family: var(--font-display-alt);
+    font-size: 20px;
+  }
+  .v-url {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--portal-mid);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    direction: rtl; /* show end of url */
+    text-align: left;
+  }
+  .empty {
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--portal-mid);
+    text-align: center;
+    padding: 24px 0;
+  }
 
-    .login-error {
-      color: var(--red);
-      font-size: 0.72rem;
-      margin-top: 0.75rem;
-      letter-spacing: 0.04em;
-      min-height: 1.2em;
-    }
-
-    /* ──────────────── LAYOUT ──────────────────────── */
-    .admin-wrap { display: none; }
-    .admin-wrap.visible { display: block; }
-
-    .admin-header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 2.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .header-left { display: flex; align-items: center; gap: 0.875rem; }
-
-    .header-logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.1rem;
-      font-weight: 400;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text);
-    }
-    .header-sep { width: 1px; height: 16px; background: var(--border); }
-    .header-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-    }
-
-    .logout-btn {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.6rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0.35rem 0;
-      transition: color 0.2s;
-    }
-    .logout-btn:hover { color: var(--text); }
-
-    .admin-body {
-      max-width: 840px;
-      margin: 0 auto;
-      padding: 2.5rem 2rem 6rem;
-    }
-
-    /* ──────────────── SECTION TITLE ───────────────── */
-    .section-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.5rem;
-      font-weight: 300;
-      font-style: italic;
-      color: var(--text);
-      margin-bottom: 1.25rem;
-    }
-
-    /* ──────────────── CARD ────────────────────────── */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 1.75rem 2rem;
-      margin-bottom: 3rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-    }
-
-    /* ──────────────── FORM ────────────────────────── */
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.875rem;
-      margin-bottom: 0.875rem;
-    }
-
-    .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
-
-    .form-label {
-      font-size: 0.6rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-      font-weight: 400;
-    }
-
-    .form-input {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      padding: 0.68rem 0.875rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.875rem;
-      font-weight: 300;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s;
-      width: 100%;
-    }
-    .form-input:focus { border-color: var(--border-mid); }
-    .form-input::placeholder { color: var(--text-soft); opacity: 0.55; font-style: italic; }
-
-    .form-hint {
-      font-size: 0.6rem;
-      color: var(--text-soft);
-      letter-spacing: 0.04em;
-      margin-top: 0.15rem;
-    }
-
-    .create-btn {
-      background: var(--text);
-      color: #fff;
-      border: none;
-      padding: 0.75rem 1.875rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.68rem;
-      font-weight: 400;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 0.5rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .create-btn:hover { background: var(--gold); }
-    .create-btn svg {
-      width: 12px; height: 12px;
-      stroke: currentColor; fill: none;
-      stroke-width: 1.75; stroke-linecap: round;
-    }
-
-    /* ──────────────── CLIENT LIST HEADER ──────────── */
-    .list-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.875rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .list-label {
-      font-size: 0.62rem;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-    }
-    .list-count {
-      font-size: 0.62rem;
-      color: var(--text-soft);
-    }
-
-    /* ──────────────── CLIENT CARD ─────────────────── */
-    .client-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      margin-bottom: 0.625rem;
-      overflow: hidden;
-      transition: border-color 0.2s;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .client-card.panel-open { border-color: var(--border-mid); }
-
-    .client-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 1.1rem 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .client-info h3 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.15rem;
-      font-weight: 300;
-      font-style: italic;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      line-height: 1.3;
-    }
-
-    .client-info p {
-      font-size: 0.62rem;
-      letter-spacing: 0.1em;
-      color: var(--text-soft);
-      margin-top: 0.2rem;
-    }
-
-    .vid-badge {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.58rem;
-      letter-spacing: 0.1em;
-      background: var(--gold-bg);
-      color: var(--gold);
-      padding: 0.15rem 0.5rem;
-      font-style: normal;
-      font-weight: 400;
-    }
-
-    .client-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      flex-wrap: wrap;
-    }
-
-    /* ── Buttons ── */
-    .btn {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.6rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 0.42rem 0.8rem;
-      cursor: pointer;
-      border: 1px solid transparent;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      text-decoration: none;
-      background: transparent;
-      transition: all 0.18s ease;
-      font-weight: 300;
-      white-space: nowrap;
-    }
-    .btn svg {
-      width: 10px; height: 10px;
-      stroke: currentColor; fill: none;
-      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
-      flex-shrink: 0;
-    }
-
-    .btn-add {
-      color: var(--gold);
-      border-color: var(--gold-border);
-      background: transparent;
-    }
-    .btn-add:hover, .btn-add.active { background: var(--gold-bg); border-color: var(--gold); }
-
-    .btn-outline {
-      color: var(--text-mid);
-      border-color: var(--border);
-    }
-    .btn-outline:hover { border-color: var(--border-mid); color: var(--text); }
-
-    .btn-copy {
-      color: var(--text-mid);
-      border-color: var(--border);
-    }
-    .btn-copy:hover { border-color: var(--border-mid); color: var(--text); }
-    .btn-copy.copied { background: var(--green-bg); border-color: var(--green); color: var(--green); }
-
-    .btn-del {
-      color: var(--text-soft);
-      border-color: transparent;
-      padding: 0.42rem 0.5rem;
-    }
-    .btn-del:hover { color: var(--red); border-color: var(--red); background: var(--red-bg); }
-
-    /* ──────────────── VIDEO PANEL ─────────────────── */
-    .video-panel {
-      display: none;
-      background: var(--surface-2);
-      border-top: 1px solid var(--border);
-      padding: 1.5rem 1.5rem 1.75rem;
-    }
-    .video-panel.open { display: block; }
-
-    .panel-title {
-      font-size: 0.6rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-      margin-bottom: 1.1rem;
-      font-weight: 400;
-    }
-
-    /* Add video row */
-    .add-row {
-      display: grid;
-      grid-template-columns: 1.1fr 2fr auto;
-      gap: 0.6rem;
-      align-items: end;
-      margin-bottom: 0.875rem;
-    }
-
-    .add-row .form-input {
-      padding: 0.62rem 0.8rem;
-      font-size: 0.82rem;
-      background: var(--surface);
-    }
-
-    .add-btn {
-      background: var(--text);
-      color: #fff;
-      border: none;
-      padding: 0.62rem 1.1rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.62rem;
-      font-weight: 400;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.2s;
-      white-space: nowrap;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .add-btn:hover { background: var(--gold); }
-    .add-btn svg {
-      width: 10px; height: 10px;
-      stroke: currentColor; fill: none;
-      stroke-width: 2; stroke-linecap: round;
-    }
-
-    /* URL tip */
-    .url-tip {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 0.75rem 1rem;
-      margin-bottom: 1rem;
-      font-size: 0.65rem;
-      line-height: 1.6;
-      color: var(--text-soft);
-    }
-    .url-tip strong { color: var(--text-mid); font-weight: 400; }
-
-    /* Upload */
-    .upload-section {
-      margin-bottom: 1rem;
-      padding: 1.1rem 1.1rem 1.25rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-    .upload-section-title {
-      font-size: 0.6rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-soft);
-      margin-bottom: 0.75rem;
-      font-weight: 400;
-    }
-    .upload-label-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      background: var(--text);
-      color: #fff;
-      padding: 0.62rem 1rem;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.62rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.2s;
-      user-select: none;
-    }
-    .upload-label-btn:hover { background: var(--gold); }
-    .upload-label-btn svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
-    .upload-label-btn.uploading { background: var(--gold); pointer-events: none; }
-
-    .upload-progress { margin-top: 0.875rem; display: none; }
-    .upload-track { height: 2px; background: var(--border); width: 100%; margin-bottom: 0.4rem; border-radius: 2px; overflow: hidden; }
-    .upload-fill { height: 2px; background: var(--gold); width: 0%; transition: width 0.25s ease; border-radius: 2px; }
-    .upload-fill.complete { background: var(--green); }
-    .upload-fill.error { background: var(--red); }
-    .upload-status-text { font-size: 0.62rem; color: var(--text-soft); letter-spacing: 0.04em; }
-
-    .panel-or {
-      display: flex; align-items: center; gap: 0.75rem;
-      margin: 0.875rem 0 1rem;
-    }
-    .panel-or-line { flex: 1; height: 1px; background: var(--border); }
-    .panel-or-text { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-soft); }
-
-    /* Video list */
-    .vid-list { display: flex; flex-direction: column; gap: 0.35rem; }
-
-    .vid-item {
-      display: flex;
-      align-items: center;
-      gap: 0.875rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 0.65rem 0.875rem 0.65rem 0.75rem;
-    }
-
-    .vid-num {
-      font-size: 0.6rem;
-      letter-spacing: 0.08em;
-      color: var(--text-soft);
-      background: var(--surface-2);
-      padding: 0.2rem 0.45rem;
-      flex-shrink: 0;
-      font-weight: 400;
-    }
-
-    .vid-info { flex: 1; min-width: 0; }
-    .vid-title {
-      font-size: 0.82rem;
-      color: var(--text);
-      font-weight: 400;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .vid-url {
-      font-size: 0.62rem;
-      color: var(--text-soft);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-top: 0.1rem;
-    }
-
-    .vid-remove {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-soft);
-      padding: 0.3rem;
-      display: flex;
-      align-items: center;
-      transition: color 0.15s;
-      flex-shrink: 0;
-    }
-    .vid-remove:hover { color: var(--red); }
-    .vid-remove svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; }
-
-    .vid-empty {
-      font-size: 0.75rem;
-      color: var(--text-soft);
-      font-style: italic;
-      padding: 0.25rem 0;
-    }
-
-    /* ──────────────── EMPTY PORTALS ───────────────── */
-    .empty-portals {
-      text-align: center;
-      padding: 3rem 2rem;
-      background: var(--surface);
-      border: 1px dashed var(--border-mid);
-    }
-    .empty-portals p {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.2rem;
-      font-style: italic;
-      font-weight: 300;
-      color: var(--text-soft);
-    }
-
-    /* ──────────────── TOAST ────────────────────────── */
-    .toast {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      background: var(--text);
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.7rem;
-      letter-spacing: 0.08em;
-      padding: 0.8rem 1.25rem;
-      z-index: 300;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: all 0.25s ease;
-      pointer-events: none;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    }
-    .toast.show { opacity: 1; transform: translateY(0); }
-
-    /* ──────────────── RESPONSIVE ───────────────────── */
-    @media (max-width: 640px) {
-      .form-row { grid-template-columns: 1fr; }
-      .admin-header { padding: 1rem 1.25rem; }
-      .admin-body { padding: 1.75rem 1rem 4rem; }
-      .client-row { flex-direction: column; align-items: flex-start; }
-      .add-row { grid-template-columns: 1fr; }
-      .add-btn { width: 100%; justify-content: center; }
-      .card { padding: 1.25rem 1.25rem; }
-    }
-  </style>
+  .toast {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    background: var(--portal-ink);
+    color: var(--portal-bg);
+    padding: 14px 22px;
+    font-family: var(--font-ui);
+    font-size: 11px; letter-spacing: 0.28em;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 200ms var(--ease-out-soft),
+                transform 200ms var(--ease-out-soft);
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
 </head>
 <body>
-
-<!-- ── LOGIN ── -->
-<div class="login-screen" id="loginScreen">
-  <div class="login-box">
-    <div class="login-logo">Eli Pixler Studios</div>
-    <p class="login-sub">Admin Portal</p>
-    <input class="login-input" type="password" id="passwordInput" placeholder="Password" autocomplete="current-password" />
-    <button class="login-btn" id="loginBtn">Enter</button>
-    <p class="login-error" id="loginError"></p>
-  </div>
-</div>
-
-<!-- ── DASHBOARD ── -->
-<div class="admin-wrap" id="adminWrap">
-
-  <header class="admin-header">
-    <div class="header-left">
-      <div class="header-logo">Eli Pixler Studios</div>
-      <div class="header-sep"></div>
-      <span class="header-label">Admin</span>
+  <header class="topbar">
+    <div class="brand">
+      <span class="glyph-mono">ep</span>
+      <span class="name">Eli Pixler Films</span>
     </div>
-    <button class="logout-btn" id="logoutBtn">Sign out</button>
+    <div class="center">Studio Admin</div>
+    <div class="right">
+      <button class="btn btn-ghost btn-sm" id="logoutBtn">Sign Out</button>
+    </div>
   </header>
 
-  <div class="admin-body">
+  <main data-screen-label="02 Admin">
+    <h1 class="page">Bridal Portals</h1>
+    <p class="pg-sub">Create a private collection, add the films, send the link.</p>
 
-    <!-- CREATE PORTAL -->
-    <p class="section-title">Create New Client Portal</p>
-    <div class="card">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Bride's Name *</label>
-          <input class="form-input" type="text" id="clientName" placeholder="Sarah Johnson" autocomplete="off" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Partner's Name (optional)</label>
-          <input class="form-input" type="text" id="clientPartner" placeholder="James Williams" autocomplete="off" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Wedding Date</label>
-          <input class="form-input" type="text" id="clientDate" placeholder="June 14, 2025" autocomplete="off" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">URL Slug *</label>
-          <input class="form-input" type="text" id="clientSlug" placeholder="sarah-johnson" autocomplete="off" />
-          <span class="form-hint">Auto-filled — edit if needed</span>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group" style="grid-column: 1 / -1;">
-          <label class="form-label">Cover Photo URL (optional)</label>
-          <input class="form-input" type="url" id="clientCover" placeholder="https://www.dropbox.com/s/... or any direct image link" autocomplete="off" />
-          <span class="form-hint">Paste a Dropbox/Google Drive/direct link to a photo — shown as the hero background on their portal</span>
+    <!-- ---------- Studio profile ---------- -->
+    <section class="profile" data-screen-label="02 Admin / Profile">
+      <div class="ring" id="profileGlyph">ep</div>
+      <div>
+        <div class="profile-eyebrow">Studio Profile</div>
+        <h3>Footer credit on every portal</h3>
+        <p class="profile-note">Your name, handle, email, and phone are shown softly at the bottom of every bride's page.</p>
+        <div class="profile-fields" style="margin-top:24px;">
+          <div class="field">
+            <label>Name</label>
+            <input id="pf_name" placeholder="Eli Pixler" />
+          </div>
+          <div class="field">
+            <label>Instagram</label>
+            <input id="pf_ig" placeholder="elipixlerfilms" />
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input id="pf_email" type="email" placeholder="hello@…" />
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input id="pf_phone" placeholder="+1 ___ ___ ____" />
+          </div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Teaser Film URL (optional)</label>
-          <input class="form-input" type="url" id="clientTeaser" placeholder="Google Drive or Dropbox link to teaser film" autocomplete="off" />
-          <span class="form-hint">Horizontal film — shown at the top of their portal</span>
+      <div class="profile-save">
+        <button class="btn btn-ghost btn-sm" id="profileSave">Save Profile</button>
+        <div class="profile-saved-pill" id="profileSaved">Saved</div>
+      </div>
+    </section>
+
+    <!-- ---------- Create form ---------- -->
+    <section class="create" data-screen-label="02 Admin / Create">
+      <div class="section-eyebrow">Create New Portal</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Bride's Name<span style="color:var(--portal-ink)"> *</span></label>
+          <input id="f_bride" placeholder="Madison" />
         </div>
-        <div class="form-group">
-          <label class="form-label">Highlight Film URL (optional)</label>
-          <input class="form-input" type="url" id="clientHighlight" placeholder="Google Drive or Dropbox link to highlight film" autocomplete="off" />
-          <span class="form-hint">Horizontal film — shown at the top of their portal</span>
+        <div class="field">
+          <label>Partner's Name</label>
+          <input id="f_partner" placeholder="Zac" />
+        </div>
+        <div class="field">
+          <label>Wedding Date</label>
+          <input id="f_date" type="date" />
+        </div>
+        <div class="field">
+          <label>URL Slug</label>
+          <input id="f_slug" placeholder="madison-zac" />
+        </div>
+        <div class="field">
+          <label>Monogram <span style="color:var(--portal-mid);text-transform:none;letter-spacing:0;font-style:italic;font-family:var(--font-serif);font-size:13px;">— shown in script on the hero divider. Defaults to initials.</span></label>
+          <input id="f_monogram" placeholder="C & G" />
+        </div>
+        <div class="field">
+          <label>Bride's Email <span style="color:var(--portal-mid);text-transform:none;letter-spacing:0;font-style:italic;font-family:var(--font-serif);font-size:13px;">— for the portal-ready email.</span></label>
+          <input id="f_email" type="email" placeholder="caroline@example.com" />
+        </div>
+        <div class="field full">
+          <label>Wedding Location <span style="color:var(--portal-mid);text-transform:none;letter-spacing:0;font-style:italic;font-family:var(--font-serif);font-size:13px;">— city or "lat, lng". Plotted on the globe in the hero.</span></label>
+          <input id="f_venue" placeholder="Aiken, South Carolina" />
+        </div>
+        <div class="field full">
+          <label>Cover Photo URL <span style="color:var(--portal-mid);text-transform:none;letter-spacing:0;font-style:italic;font-family:var(--font-serif);font-size:13px;">— optional, used as a fallback if the globe is disabled.</span></label>
+          <input id="f_cover" placeholder="https://…" />
+        </div>
+        <div class="field">
+          <label>Sneak Peek URL</label>
+          <input id="f_sneak" placeholder="Vimeo / Drive / Dropbox / .mp4" />
+        </div>
+        <div class="field">
+          <label>Teaser Film URL</label>
+          <input id="f_teaser" placeholder="Vimeo / Drive / Dropbox / .mp4" />
+        </div>
+        <div class="field full">
+          <label>Full Film URL</label>
+          <input id="f_full" placeholder="Vimeo / Drive / Dropbox / .mp4" />
         </div>
       </div>
-      <button class="create-btn" id="createClientBtn">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Create Portal
-      </button>
-    </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="createBtn">+ Create Portal</button>
+      </div>
+    </section>
 
-    <!-- CLIENT LIST -->
-    <div class="list-header">
-      <span class="list-label">Your Client Portals</span>
-      <span class="list-count" id="listCount"></span>
-    </div>
-    <div id="clientList"></div>
+    <!-- ---------- Portal list ---------- -->
+    <section data-screen-label="02 Admin / List">
+      <div class="section-eyebrow" id="listCount">All Portals</div>
+      <div id="list"></div>
+    </section>
+  </main>
 
-  </div>
-</div>
+  <div class="toast" id="toast">Saved</div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<script>
-  // ─── SUPABASE CONFIG ───────────────────────────────────
-  const SUPABASE_URL    = 'https://agrymwvcdnheccromupd.supabase.co';
-  const SUPABASE_KEY    = 'sb_publishable_otI76Wja5LMZdVf6ixO-rA_xpFylkVp';
-  const STORAGE_BUCKET  = 'videos';
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  // ──────────────────────────────────────────────────────
-
-  // ─── CHANGE THIS PASSWORD ──────────────────────────────
-  const ADMIN_PASSWORD = '2003';
-  // ──────────────────────────────────────────────────────
-
-  // ── Auth ─────────────────────────────────────────────
-  const loginBtn  = document.getElementById('loginBtn');
-  const pwInput   = document.getElementById('passwordInput');
-  const loginErr  = document.getElementById('loginError');
-
-  loginBtn.addEventListener('click', tryLogin);
-  pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
-
-  async function tryLogin() {
-    if (pwInput.value === ADMIN_PASSWORD) {
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('adminWrap').classList.add('visible');
-      await renderClients();
-    } else {
-      loginErr.textContent = 'Incorrect password.';
-      pwInput.select();
+  <script src="scripts/store.js"></script>
+  <script>
+    if (!Session.isAuthed()) {
+      window.location.replace("index.html");
     }
-  }
 
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    document.getElementById('adminWrap').classList.remove('visible');
-    document.getElementById('loginScreen').style.display = 'flex';
-    pwInput.value = '';
-    loginErr.textContent = '';
-  });
+    const $ = (s, r=document) => r.querySelector(s);
+    const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 
-  // ── Auto-slug ─────────────────────────────────────────
-  document.getElementById('clientName').addEventListener('input', () => {
-    const v = document.getElementById('clientName').value;
-    document.getElementById('clientSlug').value =
-      v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  });
+    const toastEl = $("#toast");
+    function toast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => toastEl.classList.remove("show"), 1800);
+    }
 
-  // ── Supabase DB helpers ────────────────────────────────
-  async function getClients() {
-    const { data, error } = await sb.from('clients').select('*').order('created_at', { ascending: false });
-    if (error) { console.error(error); toast('Error loading portals'); return []; }
-    return data || [];
-  }
+    // ---------- Slug auto-fill ----------
+    const fb = $("#f_bride"), fp = $("#f_partner"), fs = $("#f_slug");
+    let slugTouched = false;
+    fs.addEventListener("input", () => slugTouched = true);
+    function recomputeSlug() {
+      if (slugTouched) return;
+      const base = (fb.value || "") + (fp.value ? " " + fp.value : "");
+      fs.value = slugify(base);
+    }
+    fb.addEventListener("input", recomputeSlug);
+    fp.addEventListener("input", recomputeSlug);
 
-  async function updateVideos(slug, videos) {
-    const { error } = await sb.from('clients').update({ videos }).eq('slug', slug);
-    if (error) throw error;
-  }
-
-  async function deleteClientDB(slug) {
-    const { error } = await sb.from('clients').delete().eq('slug', slug);
-    if (error) throw error;
-  }
-
-  // ── Create portal ─────────────────────────────────────
-  document.getElementById('createClientBtn').addEventListener('click', async () => {
-    const name      = document.getElementById('clientName').value.trim();
-    const partner   = document.getElementById('clientPartner').value.trim();
-    const date      = document.getElementById('clientDate').value.trim();
-    const slug      = document.getElementById('clientSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-    const cover     = document.getElementById('clientCover').value.trim();
-    const teaser    = document.getElementById('clientTeaser').value.trim();
-    const highlight = document.getElementById('clientHighlight').value.trim();
-
-    if (!name) { toast('Please enter the bride\'s name.'); return; }
-    if (!slug) { toast('Please enter a URL slug.'); return; }
-
-    try {
-      const { error } = await sb.from('clients').insert([{
-        name, partner, date, slug, cover_photo: cover || '',
-        teaser_url: teaser || '', highlight_url: highlight || '',
-        videos: []
-      }]);
-      if (error) throw error;
-
-      ['clientName','clientPartner','clientDate','clientSlug','clientCover','clientTeaser','clientHighlight'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
-      toast(`Portal created for ${name} ✓`);
-      await renderClients();
-    } catch (err) {
-      if (err.code === '23505' || err.message?.includes('duplicate') || err.message?.includes('unique')) {
-        toast('That slug is already taken — please choose another.');
-      } else {
-        toast('Error creating portal: ' + err.message);
+    // ---------- Create ----------
+    $("#createBtn").addEventListener("click", () => {
+      if (!fb.value.trim()) {
+        fb.focus();
+        toast("Bride's name is required");
+        return;
       }
+      const portal = PortalStore.create({
+        bride: fb.value.trim(),
+        partner: fp.value.trim(),
+        date: $("#f_date").value,
+        slug: fs.value.trim() || undefined,
+        monogram: $("#f_monogram").value.trim(),
+        email: $("#f_email").value.trim(),
+        venue: $("#f_venue").value.trim(),
+        cover: $("#f_cover").value.trim(),
+        sneak:  $("#f_sneak").value.trim(),
+        teaser: $("#f_teaser").value.trim(),
+        full:   $("#f_full").value.trim(),
+      });
+      // Reset first-visit reveal so the bride sees the intro
+      Visits.reset && (function(){ const all = JSON.parse(localStorage.getItem("epfilms.visited.v1") || "{}"); delete all[portal.slug]; localStorage.setItem("epfilms.visited.v1", JSON.stringify(all)); })();
+      // reset
+      ["f_bride","f_partner","f_date","f_slug","f_monogram","f_email","f_venue","f_cover","f_sneak","f_teaser","f_full"]
+        .forEach(id => $("#" + id).value = "");
+      slugTouched = false;
+      render();
+      toast("Portal created — " + portal.slug);
+    });
+
+    // ---------- Render list ----------
+    const list = $("#list");
+    const expanded = new Set();
+
+    function clientUrl(slug) {
+      // path-style for nicer demos
+      return "client.html?bride=" + encodeURIComponent(slug);
     }
-  });
 
-  // ── Render client list ────────────────────────────────
-  async function renderClients() {
-    const list  = document.getElementById('clientList');
-    const count = document.getElementById('listCount');
-
-    list.innerHTML = '<div class="empty-portals"><p style="color:var(--text-soft);font-size:0.85rem;">Loading portals…</p></div>';
-
-    const clients = await getClients();
-
-    count.textContent = clients.length ? `${clients.length} portal${clients.length !== 1 ? 's' : ''}` : '';
-
-    if (!clients.length) {
-      list.innerHTML = `<div class="empty-portals"><p>No portals yet — create one above</p></div>`;
-      return;
+    function render() {
+      const portals = PortalStore.list();
+      $("#listCount").textContent = `All Portals · ${portals.length}`;
+      if (!portals.length) {
+        list.innerHTML = `<p class="empty">No portals yet — create the first one above.</p>`;
+        return;
+      }
+      list.innerHTML = portals.map(p => {
+        const open = expanded.has(p.id) ? "open" : "";
+        const partner = p.partner ? `<span class="partner"> &amp; ${escapeHtml(p.partner)}</span>` : "";
+        return `
+          <div class="portal-row" data-id="${p.id}">
+            <div class="portal-head">
+              <div>
+                <div class="portal-name">${escapeHtml(p.bride)}${partner}</div>
+                <div class="portal-meta" style="margin-top:8px;">${fmtDate(p.date)}${p.venue ? " · " + escapeHtml(p.venue) : ""}</div>
+              </div>
+              <div><span class="slug-pill">/${escapeHtml(p.slug)}</span></div>
+              <div class="badge"><span class="num">${(p.videos||[]).length}</span> Reels</div>
+              <div class="row-actions">
+                <button class="btn btn-ghost btn-sm" data-act="toggle">${expanded.has(p.id) ? "Close" : "Add Videos"}</button>
+                <button class="btn btn-ghost btn-sm" data-act="preview">Preview</button>
+                <button class="btn btn-ghost btn-sm" data-act="email" ${p.email ? "" : "disabled title='Add bride email to enable'"}>Email Bride</button>
+                <button class="btn btn-ghost btn-sm" data-act="replay">Replay Intro</button>
+                <button class="btn btn-ghost btn-sm" data-act="copy">Copy Link</button>
+                <button class="btn btn-ghost btn-sm btn-danger" data-act="delete">Delete</button>
+              </div>
+            </div>
+            <div class="videos-panel ${open}" data-panel="${p.id}">
+              <div class="drop-zone" data-dz>
+                <div class="dz-glyph">↓</div>
+                <div class="dz-title">Drop video files here</div>
+                <p class="dz-sub">MP4, MOV, or WebM — files upload directly into ${escapeHtml(p.bride)}'s collection.</p>
+                <span class="dz-or">or paste a link below</span>
+                <input type="file" data-dz-input accept="video/*" multiple style="display:none;" />
+              </div>
+              <div class="add-video">
+                <div class="field">
+                  <label>Title</label>
+                  <input data-v="title" placeholder="Father's Speech" />
+                </div>
+                <div class="field">
+                  <label>Video URL or paste</label>
+                  <input data-v="url" placeholder="Drive / Dropbox / Vimeo / .mp4" />
+                </div>
+                <button class="btn btn-primary btn-sm" data-act="addvid">+ Add Video</button>
+              </div>
+              <div class="video-list">
+                ${(p.videos||[]).length === 0
+                  ? `<div class="empty">No reels yet for ${escapeHtml(p.bride)}.</div>`
+                  : (p.videos.map(v => `
+                    <div class="v-row" data-vid="${v.id}">
+                      <div class="v-title">${escapeHtml(v.title)}</div>
+                      <div class="v-url">${escapeHtml(v.url || "—")}</div>
+                      <div><button class="btn btn-ghost btn-sm" data-act="delvid">Remove</button></div>
+                    </div>
+                  `).join(""))}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
-    list.innerHTML = '';
-    clients.forEach(client => {
-      const displayName = client.partner
-        ? `${client.name} & ${client.partner}` : client.name;
-      const videos     = client.videos || [];
-      const videoCount = videos.length;
-      const portalURL  = `${location.origin}${location.pathname.replace('admin.html', '')}client.html?bride=${client.slug}`;
+    function escapeHtml(s) {
+      return (s || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+    }
 
-      const card = document.createElement('div');
-      card.className = 'client-card';
-      card.dataset.slug = client.slug;
+    list.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-act]");
+      if (!btn) return;
+      const row = e.target.closest(".portal-row");
+      const id = row?.dataset.id;
+      const portal = PortalStore.get(id);
+      const act = btn.dataset.act;
 
-      card.innerHTML = `
-        <div class="client-row">
-          <div class="client-info">
-            <h3>${displayName} <span class="vid-badge">${videoCount} video${videoCount !== 1 ? 's' : ''}</span></h3>
-            <p>${client.date || 'No date set'} &nbsp;&middot;&nbsp; /${client.slug}</p>
-          </div>
-          <div class="client-actions">
-            <button class="btn btn-add" data-slug="${client.slug}">
-              <svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z"/></svg>
-              Add Videos
-            </button>
-            <a class="btn btn-outline" href="client.html?bride=${client.slug}" target="_blank" rel="noopener">
-              <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Preview
-            </a>
-            <button class="btn btn-copy" data-url="${portalURL}">
-              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              Copy Link
-            </button>
-            <button class="btn btn-del" data-slug="${client.slug}" title="Delete portal">
-              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- VIDEO PANEL -->
-        <div class="video-panel" id="vp-${client.slug}">
-          <p class="panel-title">Videos for ${displayName}</p>
-
-          <!-- DIRECT UPLOAD -->
-          <div class="upload-section">
-            <p class="upload-section-title">Upload directly from your computer</p>
-            <label class="upload-label-btn" id="uplabel-${client.slug}">
-              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Choose MP4 file
-              <input type="file" id="upfile-${client.slug}" accept="video/mp4,video/mov,video/quicktime,video/*" style="display:none" data-slug="${client.slug}" />
-            </label>
-            <div class="upload-progress" id="upprog-${client.slug}">
-              <div class="upload-track"><div class="upload-fill" id="upfill-${client.slug}"></div></div>
-              <span class="upload-status-text" id="upstat-${client.slug}"></span>
-            </div>
-          </div>
-
-          <div class="panel-or">
-            <div class="panel-or-line"></div>
-            <span class="panel-or-text">or paste a link</span>
-            <div class="panel-or-line"></div>
-          </div>
-
-          <div class="url-tip">
-            <strong>Dropbox:</strong> Right-click your MP4 → Share → Copy Link → paste below. Auto-converted for direct playback.<br>
-            <strong>Google Drive:</strong> Right-click your MP4 → Share → Copy Link → paste below. Auto-converted for direct playback.
-          </div>
-
-          <div class="add-row">
-            <div class="form-group">
-              <label class="form-label">Video Title</label>
-              <input class="form-input" type="text" id="vt-${client.slug}" placeholder="e.g. Ceremony Highlights" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Video URL (MP4 or Dropbox link)</label>
-              <input class="form-input" type="url" id="vu-${client.slug}" placeholder="https://www.dropbox.com/s/..." />
-            </div>
-            <button class="add-btn" data-slug="${client.slug}">
-              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Add
-            </button>
-          </div>
-
-          <div class="vid-list" id="vl-${client.slug}"></div>
-        </div>
-      `;
-
-      list.appendChild(card);
-      renderVideoList(client.slug, videos);
-
-      // ── Toggle panel ─────────────────────────────
-      card.querySelector('.btn-add').addEventListener('click', function() {
-        const panel = document.getElementById(`vp-${client.slug}`);
-        const open  = panel.classList.toggle('open');
-        card.classList.toggle('panel-open', open);
-        this.classList.toggle('active', open);
-        if (open) document.getElementById(`vt-${client.slug}`).focus();
-      });
-
-      // ── Add video via URL ──────────────────────────
-      card.querySelector('.add-btn[data-slug]').addEventListener('click', async function() {
-        const slug  = this.dataset.slug;
-        const title = document.getElementById(`vt-${slug}`).value.trim();
-        const url   = document.getElementById(`vu-${slug}`).value.trim();
-        if (!url) { toast('Please enter a video URL.'); return; }
+      if (act === "toggle") {
+        if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+        render();
+      } else if (act === "preview") {
+        // Same-tab navigation so the project preview keeps its auth.
+        window.location.href = clientUrl(portal.slug);
+      } else if (act === "replay") {
         try {
-          const { data: row, error } = await sb.from('clients').select('videos').eq('slug', slug).single();
-          if (error) throw error;
-          const vids = row.videos || [];
-          vids.push({ title: title || `Film ${vids.length + 1}`, src: url, type: 'video/mp4' });
-          await updateVideos(slug, vids);
-          document.getElementById(`vt-${slug}`).value = '';
-          document.getElementById(`vu-${slug}`).value = '';
-          renderVideoList(slug, vids);
-          refreshBadge(slug, vids.length);
-          toast('Video added ✓');
-        } catch (err) { toast('Error adding video: ' + err.message); }
-      });
-
-      // ── Enter on URL field ─────────────────────────
-      card.querySelector(`#vu-${client.slug}`).addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') card.querySelector(`.add-btn[data-slug="${client.slug}"]`).click();
-      });
-
-      // ── Direct upload to Supabase ──────────────────
-      card.querySelector(`#upfile-${client.slug}`).addEventListener('change', async function() {
-        const file = this.files[0];
-        if (!file) return;
-
-        const slug     = this.dataset.slug;
-        const titleVal = (document.getElementById(`vt-${slug}`)?.value || '').trim();
-        const title    = titleVal || file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
-        const label    = document.getElementById(`uplabel-${slug}`);
-        const progWrap = document.getElementById(`upprog-${slug}`);
-        const fill     = document.getElementById(`upfill-${slug}`);
-        const stat     = document.getElementById(`upstat-${slug}`);
-
-        label.style.background = 'var(--gold)';
-        label.style.pointerEvents = 'none';
-        progWrap.style.display = 'block';
-        fill.style.width = '30%';
-        fill.className = 'upload-fill';
-        stat.textContent = 'Uploading — please wait…';
-
-        try {
-          const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-          const { data, error } = await sb.storage.from(STORAGE_BUCKET).upload(fileName, file, { cacheControl: '3600', upsert: false });
-          if (error) throw error;
-          fill.style.width = '80%';
-          const { data: urlData } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(data.path);
-          const publicUrl = urlData.publicUrl;
-
-          const { data: row, error: fetchErr } = await sb.from('clients').select('videos').eq('slug', slug).single();
-          if (fetchErr) throw fetchErr;
-          const vids = row.videos || [];
-          vids.push({ title, src: publicUrl, type: 'video/mp4' });
-          await updateVideos(slug, vids);
-
-          fill.style.width = '100%';
-          fill.classList.add('complete');
-          stat.textContent = '✓ Upload complete!';
-          label.style.background = '';
-          label.style.pointerEvents = '';
-          setTimeout(() => { progWrap.style.display = 'none'; }, 3000);
-          if (document.getElementById(`vt-${slug}`)) document.getElementById(`vt-${slug}`).value = '';
-          this.value = '';
-          renderVideoList(slug, vids);
-          refreshBadge(slug, vids.length);
-          toast(`"${title}" uploaded ✓`);
-        } catch (err) {
-          fill.classList.add('error');
-          fill.style.width = '100%';
-          stat.textContent = `Upload failed — ${err.message}`;
-          label.style.background = '';
-          label.style.pointerEvents = '';
-          console.error('Upload error:', err);
+          const v = JSON.parse(localStorage.getItem("epfilms.visited.v1") || "{}");
+          delete v[portal.slug];
+          localStorage.setItem("epfilms.visited.v1", JSON.stringify(v));
+        } catch (e) {}
+        toast("Intro will play next visit");
+      } else if (act === "copy") {
+        const u = window.location.origin + window.location.pathname.replace(/[^/]+$/, "") + clientUrl(portal.slug);
+        navigator.clipboard?.writeText(u);
+        toast("Link copied");
+      } else if (act === "delete") {
+        if (confirm(`Delete portal for ${portal.bride}? This can't be undone.`)) {
+          PortalStore.remove(id);
+          expanded.delete(id);
+          render();
+          toast("Portal deleted");
         }
-      });
-
-      // ── Copy link ──────────────────────────────────
-      card.querySelector('.btn-copy').addEventListener('click', function() {
-        navigator.clipboard.writeText(this.dataset.url).then(() => {
-          this.classList.add('copied');
-          this.innerHTML = `<svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
-          setTimeout(() => {
-            this.classList.remove('copied');
-            this.innerHTML = `<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Link`;
-          }, 2500);
-        }).catch(() => toast('Copy failed — please copy the link manually.'));
-      });
-
-      // ── Delete portal ──────────────────────────────
-      card.querySelector('.btn-del').addEventListener('click', async function() {
-        const slug = this.dataset.slug;
-        if (!confirm(`Delete ${client.name}'s portal? This cannot be undone.`)) return;
-        try {
-          await deleteClientDB(slug);
-          await renderClients();
-          toast('Portal deleted');
-        } catch (err) { toast('Error deleting: ' + err.message); }
-      });
+      } else if (act === "addvid") {
+        const panel = e.target.closest(".videos-panel");
+        const title = panel.querySelector('[data-v="title"]').value.trim();
+        const url   = panel.querySelector('[data-v="url"]').value.trim();
+        if (!title || !url) { toast("Title and URL required"); return; }
+        PortalStore.addVideo(id, { title, url, date: portal.date });
+        render();
+        toast("Video added");
+      } else if (act === "delvid") {
+        const vrow = e.target.closest(".v-row");
+        PortalStore.removeVideo(id, vrow.dataset.vid);
+        render();
+        toast("Video removed");
+      } else if (act === "email") {
+        if (!portal.email) { toast("Add bride email first"); return; }
+        const link = window.location.origin + window.location.pathname.replace(/[^/]+$/, "") + clientUrl(portal.slug);
+        const subject = `Your wedding films are ready, ${portal.bride.split(" ")[0]}`;
+        const profile = Profile.get();
+        const body = [
+          `${portal.bride.split(" ")[0]},`,
+          ``,
+          `Your private collection is live. Every reel — sneak peek, teaser, full film, and the moments in between — lives here:`,
+          ``,
+          link,
+          ``,
+          `Take your time with it. Save anything you'd like to your phone with the small download button on each reel. The link is yours, forever.`,
+          ``,
+          `With love,`,
+          profile.name || "Eli Pixler",
+          profile.instagram ? `@${profile.instagram.replace(/^@/, "")}` : "",
+        ].filter(Boolean).join("\n");
+        const href = `mailto:${encodeURIComponent(portal.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = href;
+        toast("Opening mail…");
+      }
     });
-  }
 
-  // ── Render video list ─────────────────────────────────
-  function renderVideoList(slug, videos) {
-    const el = document.getElementById(`vl-${slug}`);
-    if (!el) return;
-    if (!videos || !videos.length) {
-      el.innerHTML = `<p class="vid-empty">No videos yet — add one above.</p>`;
-      return;
+    $("#logoutBtn").addEventListener("click", () => {
+      Session.logout();
+      window.location.href = "index.html";
+    });
+
+    // ---------- Profile ----------
+    function loadProfile() {
+      const p = Profile.get();
+      $("#pf_name").value     = p.name || "";
+      $("#pf_ig").value       = p.instagram || "";
+      $("#pf_email").value    = p.email || "";
+      $("#pf_phone").value    = p.phone || "";
     }
-    el.innerHTML = '';
-    videos.forEach((v, i) => {
-      const item = document.createElement('div');
-      item.className = 'vid-item';
-      item.innerHTML = `
-        <span class="vid-num">${i + 1}</span>
-        <div class="vid-info">
-          <div class="vid-title">${v.title || 'Untitled'}</div>
-          <div class="vid-url">${v.src}</div>
-        </div>
-        <button class="vid-remove" data-idx="${i}" title="Remove">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      `;
-      item.querySelector('.vid-remove').addEventListener('click', async () => {
-        try {
-          const { data: row, error } = await sb.from('clients').select('videos').eq('slug', slug).single();
-          if (error) throw error;
-          const updated = (row.videos || []).filter((_, idx) => idx !== i);
-          await updateVideos(slug, updated);
-          renderVideoList(slug, updated);
-          refreshBadge(slug, updated.length);
-          toast('Video removed');
-        } catch (err) { toast('Error removing video: ' + err.message); }
+    function saveProfile() {
+      Profile.save({
+        name:      $("#pf_name").value.trim(),
+        instagram: $("#pf_ig").value.trim().replace(/^@/, ""),
+        email:     $("#pf_email").value.trim(),
+        phone:     $("#pf_phone").value.trim(),
       });
-      el.appendChild(item);
+      const pill = $("#profileSaved");
+      pill.classList.add("show");
+      clearTimeout(saveProfile._t);
+      saveProfile._t = setTimeout(() => pill.classList.remove("show"), 1600);
+    }
+    $("#profileSave").addEventListener("click", saveProfile);
+    loadProfile();
+
+    // ---------- Drop-zone (mocked upload) ----------
+    list.addEventListener("click", (e) => {
+      const dz = e.target.closest("[data-dz]");
+      if (!dz) return;
+      const input = dz.parentElement.querySelector("[data-dz-input]");
+      input.value = "";
+      input.click();
     });
-  }
+    list.addEventListener("change", (e) => {
+      const input = e.target.closest("[data-dz-input]");
+      if (!input) return;
+      const row = e.target.closest(".portal-row");
+      const id = row?.dataset.id;
+      const portal = PortalStore.get(id);
+      const panel = e.target.closest(".videos-panel");
+      handleFiles(input.files, id, portal, panel);
+    });
+    list.addEventListener("dragover", (e) => {
+      const dz = e.target.closest("[data-dz]");
+      if (!dz) return;
+      e.preventDefault();
+      dz.classList.add("is-over");
+    });
+    list.addEventListener("dragleave", (e) => {
+      const dz = e.target.closest("[data-dz]");
+      if (!dz) return;
+      dz.classList.remove("is-over");
+    });
+    list.addEventListener("drop", (e) => {
+      const dz = e.target.closest("[data-dz]");
+      if (!dz) return;
+      e.preventDefault();
+      dz.classList.remove("is-over");
+      const row = e.target.closest(".portal-row");
+      const id = row?.dataset.id;
+      const portal = PortalStore.get(id);
+      const panel = e.target.closest(".videos-panel");
+      handleFiles(e.dataTransfer.files, id, portal, panel);
+    });
 
-  // ── Update badge ──────────────────────────────────────
-  function refreshBadge(slug, count) {
-    const card = document.querySelector(`.client-card[data-slug="${slug}"]`);
-    if (!card) return;
-    const badge = card.querySelector('.vid-badge');
-    if (badge) badge.textContent = `${count} video${count !== 1 ? 's' : ''}`;
-  }
+    function handleFiles(fileList, id, portal, panel) {
+      const files = [...fileList].filter(f => /^video\//.test(f.type) || /\.(mp4|mov|webm|m4v)$/i.test(f.name));
+      if (!files.length) { toast("No video files found"); return; }
+      const dz = panel.querySelector("[data-dz]");
+      files.forEach(file => {
+        const row = document.createElement("div");
+        row.className = "upload-row";
+        row.innerHTML = `
+          <div>
+            <div class="u-name">${escapeHtml(file.name)}</div>
+            <div class="u-meta">${(file.size / (1024*1024)).toFixed(1)} MB</div>
+            <div class="u-bar"><div class="u-fill"></div></div>
+          </div>
+          <div class="u-status">Uploading…</div>
+          <div></div>
+        `;
+        dz.insertAdjacentElement("afterend", row);
+        const fill = row.querySelector(".u-fill");
+        const status = row.querySelector(".u-status");
+        // Mock progressive upload
+        let pct = 0;
+        const tick = () => {
+          pct = Math.min(100, pct + 8 + Math.random() * 14);
+          fill.style.width = pct + "%";
+          if (pct < 100) {
+            setTimeout(tick, 180 + Math.random() * 120);
+          } else {
+            status.textContent = "Complete";
+            row.classList.add("done");
+            // Save with blob URL — works for the session.
+            const url = URL.createObjectURL(file);
+            const title = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+            PortalStore.addVideo(id, { title, url, date: portal.date });
+            setTimeout(() => { row.remove(); render(); }, 900);
+          }
+        };
+        setTimeout(tick, 220);
+      });
+    }
 
-  // ── Toast ─────────────────────────────────────────────
-  let toastTmr;
-  function toast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toastTmr);
-    toastTmr = setTimeout(() => el.classList.remove('show'), 3200);
-  }
-</script>
+    render();
+  </script>
 </body>
 </html>

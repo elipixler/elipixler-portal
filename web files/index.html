@@ -1,11 +1,103 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=admin.html">
-  <title>Eli Pixler Studios</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Eli Pixler Films · Sign In</title>
+<link rel="stylesheet" href="styles/tokens.css" />
+<link rel="stylesheet" href="styles/portal.css" />
+<style>
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+    padding: 56px 48px;
+  }
+  .wordmark {
+    font-family: var(--font-display-alt);
+    font-size: 32px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--portal-ink);
+    margin: 0 0 4px;
+    font-weight: 400;
+  }
+  .sub {
+    font-family: var(--font-script);
+    font-size: 22px;
+    color: var(--portal-mid);
+    margin: 0 0 56px;
+    letter-spacing: 0.04em;
+  }
+  .field { text-align: left; margin-bottom: 28px; }
+  .err {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 14px;
+    color: #6b3a3a;
+    min-height: 22px;
+    margin-bottom: 10px;
+    transition: opacity 200ms var(--ease-out-soft);
+  }
+  .err.hidden { opacity: 0; }
+  .btn-primary { width: 100%; }
+  .hint {
+    margin-top: 36px;
+    font-family: var(--font-ui);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--portal-mid);
+  }
+  .divider-em { margin: 0 auto 28px; }
+</style>
 </head>
 <body>
-  <script>window.location.href = 'admin.html';</script>
+  <main class="login-card" data-screen-label="01 Login">
+    <h1 class="wordmark">Eli Pixler Films</h1>
+    <p class="sub">films</p>
+    <div class="divider-em">
+      <span class="line" style="width:48px;"></span>
+      <span class="glyph">ep</span>
+      <span class="line" style="width:48px;"></span>
+    </div>
+    <form id="loginForm" autocomplete="off">
+      <div class="field">
+        <label for="pw">Password</label>
+        <input id="pw" type="password" placeholder="Enter studio password" autofocus />
+      </div>
+      <p id="err" class="err hidden">That password isn't right.</p>
+      <button type="submit" class="btn btn-primary">Enter</button>
+    </form>
+    <p class="hint">Studio &amp; staff only · brides have direct links</p>
+  </main>
+
+  <script src="scripts/store.js"></script>
+  <script>
+    const form = document.getElementById("loginForm");
+    const err  = document.getElementById("err");
+    const pw   = document.getElementById("pw");
+
+    if (Session.isAuthed()) window.location.replace("admin.html");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (Session.login(pw.value)) {
+        window.location.href = "admin.html";
+      } else {
+        err.classList.remove("hidden");
+        pw.value = "";
+        pw.focus();
+      }
+    });
+    pw.addEventListener("input", () => err.classList.add("hidden"));
+  </script>
 </body>
 </html>

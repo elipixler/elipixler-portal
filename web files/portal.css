@@ -1,0 +1,133 @@
+/* Client Portal — local overrides on top of brand tokens */
+
+:root {
+  /* These map the brief's hex codes to our system. */
+  --portal-bg:        #F9F7F5;  /* page background */
+  --portal-surface:   #F2EDE6;  /* card / hero overlay */
+  --portal-border:    #E2DAD0;  /* hairlines, field borders */
+  --portal-taupe:     #BEB4A7;  /* accent surface */
+  --portal-mid:       #71706F;  /* secondary text */
+  --portal-ink:       #000000;  /* body text */
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--portal-bg);
+  color: var(--portal-ink);
+  font-family: var(--font-serif);
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+*, *::before, *::after { box-sizing: border-box; }
+
+a { color: inherit; }
+button { font: inherit; }
+
+/* ---------- Type helpers ---------- */
+.h-display {
+  font-family: var(--font-display-alt); /* Playfair Display */
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  line-height: 1.05;
+  color: var(--portal-ink);
+}
+.h-italic {
+  font-family: var(--font-serif); /* Cormorant Garamond italic */
+  font-style: italic;
+  font-weight: 400;
+  color: var(--portal-ink);
+}
+.label-caps {
+  font-family: var(--font-script); /* La Luxes Serif */
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--portal-mid);
+}
+.ui-caps {
+  /* fallback for tiny eyebrow text where La Luxes reads too decorative */
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--portal-mid);
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  padding: 16px 28px;
+  border: 1px solid var(--portal-ink);
+  background: transparent;
+  color: var(--portal-ink);
+  cursor: pointer;
+  transition: background 200ms var(--ease-out-soft),
+              color 200ms var(--ease-out-soft);
+}
+.btn:hover { background: var(--portal-ink); color: var(--portal-bg); }
+.btn-primary { background: var(--portal-ink); color: var(--portal-bg); }
+.btn-primary:hover {
+  background: var(--portal-bg);
+  color: var(--portal-ink);
+}
+.btn-ghost { border-color: var(--portal-border); color: var(--portal-mid); }
+.btn-ghost:hover { background: var(--portal-surface); color: var(--portal-ink); border-color: var(--portal-ink); }
+.btn-sm { padding: 10px 18px; font-size: 10px; }
+.btn-danger:hover { background: #1a0a0a; color: #fff; border-color: #1a0a0a; }
+
+/* ---------- Inputs ---------- */
+.field { display: flex; flex-direction: column; gap: 10px; }
+.field label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--portal-mid);
+}
+.field input,
+.field textarea {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  color: var(--portal-ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--portal-ink);
+  padding: 12px 0;
+  outline: none;
+  width: 100%;
+}
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--portal-mid);
+  font-style: italic;
+}
+.field textarea { resize: none; min-height: 80px; }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--portal-surface);
+  border: 1px solid var(--portal-border);
+  padding: 28px;
+}
+
+/* ---------- Decorative divider ---------- */
+.divider-em {
+  display: flex; align-items: center; justify-content: center;
+  gap: 18px;
+}
+.divider-em .line {
+  width: 60px; height: 1px;
+  background: var(--portal-ink);
+}
+.divider-em .glyph {
+  font-family: var(--font-script);
+  font-size: 22px;
+  color: var(--portal-ink);
+  line-height: 1;
+}
