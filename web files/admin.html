@@ -970,11 +970,15 @@ button { font: inherit; }
     async get(idOrSlug) {
       if (!idOrSlug) return null;
       const sb = getSb();
-      const { data, error } = await sb.from("clients").select("*")
-        .or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`)
-        .maybeSingle();
-      if (error || !data) return null;
-      return mapRow(data);
+      // Try by slug first (most common case)
+      const { data: bySlug } = await sb.from("clients").select("*")
+        .eq("slug", idOrSlug).maybeSingle();
+      if (bySlug) return mapRow(bySlug);
+      // Fall back to id
+      const { data: byId } = await sb.from("clients").select("*")
+        .eq("id", idOrSlug).maybeSingle();
+      if (byId) return mapRow(byId);
+      return null;
     },
 
     async create(input) {
@@ -1097,9 +1101,7 @@ button { font: inherit; }
 
   </script>
   <script>
-    if (!Session.isAuthed()) {
-      window.location.replace("index.html");
-    }
+    // Password removed — direct access enabled
 
     const $ = (s, r=document) => r.querySelector(s);
     const $$ = (s, r=document) => [...r.querySelectorAll(s)];
